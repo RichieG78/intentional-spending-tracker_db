@@ -1,0 +1,15 @@
+# Bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environments
+.venv/
+venv/
+
+# Local data
+instance/*.db
+instance/*.sqlite3
+
+# OS files
+.DS_Store

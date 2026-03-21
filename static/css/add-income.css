@@ -1,0 +1,61 @@
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+    width: 100%; /* Full width of the container/card */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    font-size: 1rem;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+/* Radio Button Group */
+.radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal; /* Override bold label */
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.radio-label input[type="radio"] {
+    margin-right: 8px;
+    width: auto; /* Reset width from 100% */
+}
+
+.form-actions {
+    margin-top: 30px;
+}
+
+.form-actions button {
+    padding: 10px 20px;
+    font-size: 1rem;
+}

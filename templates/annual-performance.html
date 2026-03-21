@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Performance - My Financial Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .kpi-title {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .kpi-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .kpi-value.green { color: #27ae60; }
+        .kpi-value.red { color: #c0392b; }
+
+        .recommendation-card {
+            background: #fff;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .recommendation-card.opportunity { border-left-color: #2ecc71; }
+        .recommendation-card.warning { border-left-color: #f1c40f; }
+        .recommendation-card.alert { border-left-color: #e74c3c; }
+
+        .rec-title {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .rec-text {
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .chart-wrapper {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        table.top-expenses {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        table.top-expenses th, table.top-expenses td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        table.top-expenses th {
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <!-- Reuse Sidebar Navigation -->
+    <nav><aside>
+        <h2>My Financial Tracker</h2>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('performance') }}" class="active">Performance</a></li>
+            <li><a href="{{ url_for('add_income') }}">Add Income</a></li>
+            <li><a href="{{ url_for('add_expense') }}">Add Expense</a></li>
+    </aside></nav>
+
+    <main>
+        <h1>Annual Financial Performance</h1>
+        
+        <!-- KPI Cards -->
+        <div class="performance-grid">
+            <div class="kpi-card">
+                <span class="kpi-title">Projected Annual Income</span>
+                <span class="kpi-value green">£{{ "{:,.2f}".format(annual_income) }}</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Total Recorded Spend</span>
+                <span class="kpi-value">£{{ "{:,.2f}".format(annual_expense) }}</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Net Position (Yearly)</span>
+                {% set net = annual_income - annual_expense %}
+                <span class="kpi-value {{ 'green' if net > 0 else 'red' }}">
+                    £{{ "{:,.2f}".format(net) }}
+                </span>
+            </div>
+        </div>
+
+        <div class="performance-grid">
+            <!-- Monthly Chart -->
+            <div class="chart-wrapper" style="flex: 2;"> <!-- Takes up roughly 2/3 width if space allows -->
+                <h3>Monthly Spending Trends</h3>
+                <canvas
+                    id="monthlyChart"
+                    data-labels='{{ spending_by_month.keys() | list | tojson }}'
+                    data-values='{{ spending_by_month.values() | list | tojson }}'></canvas>
+            </div>
+
+            <!-- Top Spending Table -->
+            <div class="chart-wrapper" style="flex: 1;">
+                <h3>Biggest Single Expenses</h3>
+                <table class="top-expenses">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Date</th> <!-- Added Date Column -->
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if top_expenses %}
+                            {% for expense in top_expenses %}
+                            <tr>
+                                <td>{{ expense.description }}</td>
+                                <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+                                <td><strong>£{{ "%.2f"|format(expense.amount) }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="3">No expenses recorded yet.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div class="card">
+            <h2>Smart Recommendations & Savings</h2>
+            <p style="margin-bottom: 20px; color: #666;">Based on your spending patterns, we've identified the following opportunities to optimise your budget.</p>
+            
+            {% if recommendations %}
+                {% for rec in recommendations %}
+                <div class="recommendation-card {{ rec.type }}">
+                    <span class="rec-title">{{ rec.title }}</span>
+                    <span class="rec-text">{{ rec.text | safe }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No specific recommendations available yet. Keep tracking your expenses!</p>
+            {% endif %}
+        </div>
+
+    </main>
+
+    <script>
+        // Data passed from Flask
+        const chartElement = document.getElementById('monthlyChart');
+        const monthLabels = JSON.parse(chartElement.dataset.labels || '[]');
+        const monthData = JSON.parse(chartElement.dataset.values || '[]');
+
+        const ctx = chartElement.getContext('2d');
+        const monthlyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: monthLabels,
+                datasets: [{
+                    label: 'Total Spending',
+                    data: monthData,
+                    backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                         ticks: {
+                            callback: function(value, index, values) {
+                                return '£' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

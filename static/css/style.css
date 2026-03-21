@@ -1,0 +1,354 @@
+body {
+    display: flex;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+}
+
+nav {
+    width: 250px;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 10px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+nav a.active {
+    font-weight: bold;
+    text-decoration: underline;
+    color: #4CAF50; /* Or any highlight color you prefer */
+}
+
+main {
+    flex: 1;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+/* Layout Containers */
+.top-row {
+    display: flex;
+    gap: 20px; /* Space between the two cards */
+    margin-bottom: 20px;
+}
+
+/* Card Styling */
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    /* Default max-width for standalone cards, overridden in top-row */
+    max-width: 400px; 
+}
+
+/* Ensure cards in the top row share space equally */
+.top-row .card {
+    flex: 1;
+    max-width: none;
+    margin-bottom: 0;
+}
+
+/* Income Summary Specifics */
+.income-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px; /* Add some space below the header */
+}
+
+#income-summary h3 {
+    margin: 0;
+    color: #333;
+}
+
+.income-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.income-row:last-child {
+    border-bottom: none;
+}
+
+.total-row {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-top: 10px;
+    border-top: 2px solid #ddd;
+    padding-top: 15px;
+}
+
+/* Data Visualisation Graphs */
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chart-item {
+    width: 100%;
+}
+
+.chart-header {
+    position: relative;
+    height: 1.5em; /* Ensure height for the absolute positioning */
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.chart-header span:first-child {
+    float: left; /* Keep the category name on the left */
+}
+
+.target-text {
+    position: absolute;
+    transform: translateX(-50%); /* Center the text on the exact percentage point */
+    white-space: nowrap;
+    /* Optional: make it smaller or bold if needed */
+    font-size: 0.8em;
+    color: #555;
+    bottom: 0; /* Align to bottom of header area */
+}
+
+.current-percent {
+    float: right;
+    font-weight: bold;
+    color: #333;
+}
+
+.chart-track {
+    position: relative;
+    background-color: #eee;
+    height: 25px;
+    border-radius: 4px;
+    overflow: hidden; /* Keeps the actual bar inside rounded corners */
+}
+
+.chart-bar {
+    height: 100%;
+    /* Default color, overridden by specific classes */
+    background-color: #ccc;
+    transition: width 0.5s ease-in-out;
+}
+
+/* Target Line Marker */
+.target-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #000;
+    z-index: 10;
+    /* To make it standout more, maybe a dashed border or just solid black */
+}
+
+/* Colors for specific graphs */
+.bar-fixed { background-color: #3498db; } /* Blue */
+.bar-fun { background-color: #9b59b6; }   /* Purple */
+.bar-future { background-color: #2ecc71; } /* Green */
+
+/* Expense Tracker Styling */
+#expense-container {
+    background-color: white; /* Make the container stand out or just transparent */
+    padding: 20px;
+    border-radius: 8px; /* If we want it to look container-like */
+    /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); Optional: make the whole section a card */
+}
+
+.expense-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+#expense-container h2 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+#expense-container .btn-new {
+    background-color: #2ecc71;
+    color: white;
+    margin-bottom: 0;
+}
+
+.expense-columns {
+    display: flex;
+    gap: 20px;
+}
+
+.expense-category {
+    flex: 1;
+    background-color: #eaeaea;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+.category-header h3 {
+    margin: 0;
+}
+
+/* Transaction Card Styling */
+.transaction-card {
+    background-color: white;
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+}
+
+.transaction-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.transaction-title {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.transaction-amount {
+    font-weight: bold;
+    color: #e74c3c; /* Red for expense */
+    flex-shrink: 0;
+}
+
+.transaction-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Button Styling */
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    transition: opacity 0.2s;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+.btn-new {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.btn-edit {
+    background-color: #f39c12;
+    color: white;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+    color: white;
+}
+
+/* Inline Edit Inputs */
+.edit-input-title {
+    width: 100%;
+    padding: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.edit-input-amount {
+    width: 80px;
+    padding: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    text-align: right;
+}
+
+/* Income Actions */
+.income-details-wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.income-title, .income-amount {
+    font-size: 0.95rem;
+}
+
+.income-actions {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.btn-edit-income {
+    background-color: #f39c12;
+    color: white;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    border-radius: 3px;
+}
+
+.btn-delete-income {
+    background-color: #e74c3c;
+    color: white;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    border-radius: 3px;
+}
+
+/* Edit Inputs for Income */
+.edit-income-title {
+    width: 60%;
+    padding: 2px;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.edit-income-amount {
+    width: 30%;
+    padding: 2px;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+

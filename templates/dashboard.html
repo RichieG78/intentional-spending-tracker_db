@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Financial Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<!-- Side Navigation -->
+    <nav><aside>
+        <h2>My Financial Tracker</h2>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('dashboard') }}" class="active">Dashboard</a></li>
+            <li><a href="{{ url_for('performance') }}">Performance</a></li>
+            <li><a href="{{ url_for('add_income') }}">Add Income</a></li>
+            <li><a href="{{ url_for('add_expense') }}">Add Expense</a></li>
+    </aside></nav>
+
+<!-- Income Container -->
+    <main>
+<!-- Top Row: Income and Visualisation -->
+    <div class="top-row">
+
+    <div id="income-summary" class="card">
+        <div class="income-header">
+            <h3>Income Summary</h3>
+            <a href="{{ url_for('add_income') }}"><button class="btn-new">Add Income</button></a>
+        </div>
+
+        {% set primary_income = incomes | selectattr("type", "equalto", "primary") | list | last %}
+        <div class="income-row" data-id="{{ primary_income.id if primary_income else '' }}">
+            <div class="income-details-wrapper">
+                <span class="income-title">{{ primary_income.description if primary_income else 'Primary Income' }}</span>
+                <span class="income-amount">${{ "%.2f"|format(primary_income.amount) if primary_income else "0.00" }}</span>
+            </div>
+            {% if primary_income %}
+            <div class="income-actions">
+                <button class="btn-edit-income" style="padding: 2px 5px; font-size: 0.7rem;">Edit</button>
+                <button class="btn-delete-income" style="padding: 2px 5px; font-size: 0.7rem;">Del</button>
+            </div>
+            {% endif %}
+        </div>
+
+        {% for income in incomes if income.type == 'other' %}
+        <div class="income-row" data-id="{{ income.id }}">
+            <div class="income-details-wrapper">
+                <span class="income-title">{{ income.description }}</span>
+                <span class="income-amount">${{ "%.2f"|format(income.amount) }}</span>
+            </div>
+            <div class="income-actions">
+                <button class="btn-edit-income" style="padding: 2px 5px; font-size: 0.7rem;">Edit</button>
+                <button class="btn-delete-income" style="padding: 2px 5px; font-size: 0.7rem;">Del</button>
+            </div>
+        </div>
+        {% endfor %}
+
+
+        <div class="income-row total-row">
+            <span class="label">Total Monthly Income</span>
+            <span class="amount">${{ "%.2f"|format(total_income) }}</span>
+        </div>
+
+        {% set total_expenses = total_fixed + total_fun + total_future %}
+        {% set remaining = total_income - total_expenses %}
+
+        <div class="income-row" style="border-bottom: 1px solid #eee; padding: 8px 0;">
+            <span class="label">Total Expenses</span>
+            <span class="amount" style="color: #e74c3c;">- ${{ "%.2f"|format(total_expenses) }}</span>
+        </div>
+
+        <div class="income-row" style="padding-top: 10px; font-weight: bold; font-size: 1.1em;">
+            <span class="label">Remaining</span>
+            {% if remaining < 0 %}
+            <span class="amount" style="color: #c0392b;">
+                ${{ "%.2f"|format(remaining) }}
+            </span>
+            {% else %}
+            <span class="amount" style="color: #27ae60;">
+                ${{ "%.2f"|format(remaining) }}
+            </span>
+            {% endif %}
+        </div>
+
+        {% if remaining < 0 %}
+        <div style="background-color: #fce4ec; color: #c0392b; padding: 10px; margin-top: 15px; border-radius: 5px; text-align: center; border: 1px solid #e74c3c;">
+            <strong>Warning:</strong> You have overspent your income!
+        </div>
+        {% elif remaining|abs < 0.01 and total_income > 0 %}
+        <div style="background-color: #e8f5e9; color: #27ae60; padding: 10px; margin-top: 15px; border-radius: 5px; text-align: center; border: 1px solid #27ae60;">
+            <strong>Great!</strong> You have allocated all of your income for the month!
+        </div>
+        {% endif %}
+    </div>
+
+<!-- Data Visualisation Container -->
+    <div id="visualisation-container" class="card">
+        <h2>Actual vs Target Expenditure</h2>
+        <div class="chart-container">
+            
+            <!-- Fixed Expenses -->
+            <div class="chart-item">
+                <div class="chart-header">
+                    <span>Fixed</span>
+                    <span class="target-text" style="left: 50%;">Target: 50%</span>
+                    <span class="current-percent percent-fixed">0%</span>
+                </div>
+                <div class="chart-track">
+                    <div class="chart-bar bar-fixed" style="width: 45%;"></div> <!-- Example: 45% spent -->
+                    <div class="target-line" style="left: 50%;"></div>
+                </div>
+            </div>
+
+            <!-- Fun Expenses -->
+            <div class="chart-item">
+                <div class="chart-header">
+                    <span>Fun</span>
+                    <span class="target-text" style="left: 30%;">Target: 30%</span>
+                    <span class="current-percent percent-fun">0%</span>
+                </div>
+                <div class="chart-track">
+                    <div class="chart-bar bar-fun" style="width: 35%;"></div> <!-- Example: 35% spent -->
+                    <div class="target-line" style="left: 30%;"></div>
+                </div>
+            </div>
+
+            <!-- Future Expenses -->
+            <div class="chart-item">
+                <div class="chart-header">
+                    <span>Future</span>
+                    <span class="target-text" style="left: 20%;">Target: 20%</span>
+                    <span class="current-percent percent-future">0%</span>
+                </div>
+                <div class="chart-track">
+                    <div class="chart-bar bar-future" style="width: 15%;"></div> <!-- Example: 15% saved -->
+                    <div class="target-line" style="left: 20%;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    </div>
+
+
+<!-- Expense Container -->
+    <div id="expense-container">
+        <div class="expense-header">
+            <h2>Expense Tracker</h2>
+            <a href="{{ url_for('add_expense') }}"><button class="btn-new">Add Expense</button></a>
+        </div>
+        <div class="expense-columns">
+            
+            <!-- Fixed Column -->
+            <div class="expense-category">
+                <div class="category-header">
+                    <h3>Fixed</h3>
+                </div>
+                {% for expense in expenses if expense.type == 'fixed' %}
+                <div class="transaction-card" data-id="{{ expense.id }}">
+                    <div class="transaction-details">
+                        <h4 class="transaction-title">{{ expense.description }}</h4>
+                        <span class="transaction-amount">${{ "%.2f"|format(expense.amount) }}</span>
+                    </div>
+                    <div class="transaction-actions">
+                        <button class="btn-edit">Edit</button>
+                        <button class="btn-delete">Delete</button>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="total-row" style="margin-top: 15px; border-top: 2px solid #ccc; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold;">
+                    <span>Total Fixed:</span>
+                    <span>${{ "%.2f"|format(expenses | selectattr("type", "equalto", "fixed") | sum(attribute='amount')) }}</span>
+                </div>
+            </div>
+
+            <!-- Fun Column -->
+            <div class="expense-category">
+                <div class="category-header">
+                    <h3>Fun</h3>
+                </div>
+                {% for expense in expenses if expense.type == 'fun' %}
+                <div class="transaction-card" data-id="{{ expense.id }}">
+                    <div class="transaction-details">
+                        <h4 class="transaction-title">{{ expense.description }}</h4>
+                        <span class="transaction-amount">${{ "%.2f"|format(expense.amount) }}</span>
+                    </div>
+                    <div class="transaction-actions">
+                        <button class="btn-edit">Edit</button>
+                        <button class="btn-delete">Delete</button>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="total-row" style="margin-top: 15px; border-top: 2px solid #ccc; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold;">
+                    <span>Total Fun:</span>
+                    <span>${{ "%.2f"|format(expenses | selectattr("type", "equalto", "fun") | sum(attribute='amount')) }}</span>
+                </div>
+            </div>
+
+            <!-- Future Column -->
+            <div class="expense-category">
+                <div class="category-header">
+                    <h3>Future</h3>
+                </div>
+                {% for expense in expenses if expense.type == 'future' %}
+                <div class="transaction-card" data-id="{{ expense.id }}">
+                    <div class="transaction-details">
+                        <h4 class="transaction-title">{{ expense.description }}</h4>
+                        <span class="transaction-amount">${{ "%.2f"|format(expense.amount) }}</span>
+                    </div>
+                    <div class="transaction-actions">
+                        <button class="btn-edit">Edit</button>
+                        <button class="btn-delete">Delete</button>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="total-row" style="margin-top: 15px; border-top: 2px solid #ccc; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold;">
+                    <span>Total Future:</span>
+                    <span>${{ "%.2f"|format(expenses | selectattr("type", "equalto", "future") | sum(attribute='amount')) }}</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </main>
+    <div id="financial-data" 
+         data-total-income="{{ total_income }}"
+         data-total-fixed="{{ total_fixed }}"
+         data-total-fun="{{ total_fun }}"
+         data-total-future="{{ total_future }}"
+         style="display:none;"></div>
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

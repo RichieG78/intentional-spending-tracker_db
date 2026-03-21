@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intentional Spending Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .home-container {
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .home-btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .home-btn:hover {
+            background-color: #45a049;
+            text-decoration: none;
+        }
+        .features {
+            text-align: left;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        .features li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body style="display: block; background-color: #f0f2f5;">
+
+    <div class="home-container">
+        <h1>Intentional Spending Tracker</h1>
+        
+        <p class="description">
+            The Intentional Spending Tracker is a personal finance tool designed to help you align your spending with your values. 
+            By following the popular <strong>50/30/20 Rule</strong>, you can ensure your needs are met, your future is secure, and you still have room to enjoy life today.
+        </p>
+
+        <!-- Specific Video provided by user -->
+        <div style="margin: 30px 0;">
+            <iframe width="100%" height="315" src="https://www.youtube.com/embed/4sT2B2SRypo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+
+        <div class="features">
+            <h3>The 50/30/20 Framework</h3>
+            <p>Divide your after-tax income into three buckets:</p>
+            <ul>
+                <li><strong>Fixed Costs (50%)</strong>: Needs. Rent/Mortgage, utilities, groceries, transportation, and insurance. These are bills you <em>must</em> pay.</li>
+                <li><strong>Fun Spending (30%)</strong>: Wants. Dining out, shopping, hobbies, Netflix, and travel. This is the money you enjoy!</li>
+                <li><strong>Future You (20%)</strong>: Savings & Debt. Emergency fund, retirement accounts (401k/IRA), and paying down high-interest debt.</li>
+            </ul>
+            
+            <h3>How to Use This Tracker</h3>
+            <ol>
+                <li>Click the button below to valid the <strong>Dashboard</strong>.</li>
+                <li>Add your <strong>Income</strong> (use your net/take-home pay).</li>
+                <li>Log your <strong>Expenses</strong> as they happen.</li>
+                <li>Assign each expense to <strong>Fixed</strong>, <strong>Fun</strong>, or <strong>Future</strong>.</li>
+                <li>Watch the charts! If a bar turns red, you've exceeded your percentage for that bucket. Adjust your spending to get back on track.</li>
+            </ol>
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="home-btn">Go to Dashboard</a>
+    </div>
+
+</body>
+</html>
