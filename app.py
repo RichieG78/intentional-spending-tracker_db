@@ -1,84 +1,33 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+import os
 import uuid
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text 
+
+from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
+from models import (
+    db,
+    User,
+    expenses,
+    incomes,
+    FixedExpense,
+    FunExpense,
+    FutureExpense,
+    PrimaryIncome,
+    OtherIncome,
+)
 
 app = Flask(__name__)
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@localhost/myfinancialtracker'
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///myfinancialtracker_sql-test.db" # For local testing without PostgreSQL
-
-# SQLAlchemy instance that manages ORM models and sessions
-db = SQLAlchemy()
-# Bind SQLAlchemy to the configured Flask app
+app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 db.init_app(app)
 
-# Test the database connection
+# Ensure all tables exist before handling any requests
 with app.app_context():
-    try:
-        db.session.execute(text("SELECT 1")) # Simple query to test DB connection
-        print("Database connection successful.")
-    except Exception as e:
-        print(f"Database connection failed: {e}")
-
-# --- Expense Classes ---
-# Base class for all expenses
-class Expense:
-    def __init__(self, description, amount):
-        self.id = str(uuid.uuid4()) # Unique ID for identification
-        self.description = description
-        self.amount = float(amount)
-        self.date = datetime.now() # Record creation time
-        self.type = None # To be set by subclasses
-
-# Subclass for fixed expenses (Target: 50%)
-class FixedExpense(Expense):
-    def __init__(self, description, amount):
-        super().__init__(description, amount)
-        self.type = 'fixed'
-
-# Subclass for fun/discretionary expenses (Target: 30%)
-class FunExpense(Expense):
-    def __init__(self, description, amount):
-        super().__init__(description, amount)
-        self.type = 'fun'
-
-# Subclass for savings/future expenses (Target: 20%)
-class FutureExpense(Expense):
-    def __init__(self, description, amount):
-        super().__init__(description, amount)
-        self.type = 'future'
-
-# --- Income Classes ---
-# Base class for income sources
-class Income:
-    def __init__(self, amount, frequency):
-        self.id = str(uuid.uuid4()) # Unique ID for identification
-        self.amount = float(amount)
-        self.frequency = frequency
-        self.description = None
-        self.type = None
-
-# Subclass for the main salary/primary income
-class PrimaryIncome(Income):
-    def __init__(self, amount, frequency):
-        super().__init__(amount, frequency)
-        self.description = "Primary Income"
-        self.type = 'primary'
-
-# Subclass for any additional income sources
-class OtherIncome(Income):
-    def __init__(self, amount, frequency, description=None):
-        super().__init__(amount, frequency)
-        self.type = 'other'
-        if description:
-            self.description = description
-        else:
-             self.description = "Other Income"
-
-# In-memory storage (reset on server restart)
-expenses = []
-incomes = []
+    db.create_all()
 
 # Helper function to normalize all income to a monthly value
 def calculate_monthly_income(income):
@@ -96,12 +45,11 @@ def calculate_monthly_income(income):
 
 # --- Routes ---
 
-from sqlalchemy import text 
 # Home Route: Displays the landing page
 @app.route('/')
 def index():
-    db.session.execute(text("CREATE TABLE IF NOT EXISTS user( id INT, username TEXT)")) # Simple query to test DB connection
-    return render_template('home.html')
+    user_data = User.query.all()
+    return render_template('home.html', user_data=user_data)
 
 # Dashboard Route: Displays the dashboard
 @app.route('/dashboard')
@@ -299,4 +247,5 @@ def update_income(income_id):
     return jsonify({'success': False, 'error': 'Income not found'}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, port=port)
