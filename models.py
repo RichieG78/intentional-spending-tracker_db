@@ -46,13 +46,16 @@ class FutureExpense(Expense):
 
 # --- Income Classes ---
 # Base class for income sources
-class Income:
-    def __init__(self, amount, frequency):
-        self.id = str(uuid.uuid4()) # Unique ID for identification
-        self.amount = float(amount)
-        self.frequency = frequency
-        self.description = None
-        self.type = None
+class Income(db.Model):
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.Text, nullable=False)
+    type        = db.Column(db.Text, nullable=False)
+    currency    = db.Column(db.Text, default='EUR', nullable=False)
+    amount      = db.Column(db.Float, nullable=False)
+    frequency   = db.Column(db.Text, nullable=False)  # e.g., 'monthly', 'weekly'
+    date        = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    gross_net   = db.Column(db.Text, nullable=False)  # 'gross' or 'net'
+    user_id     = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
 
 # Subclass for the main salary/primary income
 class PrimaryIncome(Income):
