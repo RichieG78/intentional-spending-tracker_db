@@ -32,7 +32,7 @@
         {% set primary_income = incomes | selectattr("type", "equalto", "primary") | list | last %}
         <div class="income-row" data-id="{{ primary_income.id if primary_income else '' }}">
             <div class="income-details-wrapper">
-                <span class="income-title">{{ primary_income.description if primary_income else 'Primary Income' }}</span>
+                <span class="income-title">{{ primary_income.name if primary_income else 'Primary Income' }}</span>
                 <span class="income-amount">${{ "%.2f"|format(primary_income.amount) if primary_income else "0.00" }}</span>
             </div>
             {% if primary_income %}
@@ -46,7 +46,7 @@
         {% for income in incomes if income.type == 'other' %}
         <div class="income-row" data-id="{{ income.id }}">
             <div class="income-details-wrapper">
-                <span class="income-title">{{ income.description }}</span>
+                <span class="income-title">{{ income.name }}</span>
                 <span class="income-amount">${{ "%.2f"|format(income.amount) }}</span>
             </div>
             <div class="income-actions">
@@ -160,7 +160,7 @@
                 {% for expense in expenses if expense.type == 'fixed' %}
                 <div class="transaction-card" data-id="{{ expense.id }}">
                     <div class="transaction-details">
-                        <h4 class="transaction-title">{{ expense.description }}</h4>
+                        <h4 class="transaction-title">{{ expense.name }}</h4>
                         <span class="transaction-amount">${{ "%.2f"|format(expense.amount) }}</span>
                     </div>
                     <div class="transaction-actions">
@@ -183,7 +183,7 @@
                 {% for expense in expenses if expense.type == 'fun' %}
                 <div class="transaction-card" data-id="{{ expense.id }}">
                     <div class="transaction-details">
-                        <h4 class="transaction-title">{{ expense.description }}</h4>
+                        <h4 class="transaction-title">{{ expense.name }}</h4>
                         <span class="transaction-amount">${{ "%.2f"|format(expense.amount) }}</span>
                     </div>
                     <div class="transaction-actions">
@@ -206,7 +206,7 @@
                 {% for expense in expenses if expense.type == 'future' %}
                 <div class="transaction-card" data-id="{{ expense.id }}">
                     <div class="transaction-details">
-                        <h4 class="transaction-title">{{ expense.description }}</h4>
+                        <h4 class="transaction-title">{{ expense.name }}</h4>
                         <span class="transaction-amount">${{ "%.2f"|format(expense.amount) }}</span>
                     </div>
                     <div class="transaction-actions">

@@ -23,8 +23,21 @@
     <main>
         <div class="card">
             <h1>Add Income</h1>
+            {% if error_message %}
+            <p class="form-error">{{ error_message }}</p>
+            {% endif %}
             <form action="{{ url_for('add_income') }}" method="post">
                 <!-- Description field removed as per requirements -->
+
+                <div class="form-group">
+                    <label for="user_id">User:</label>
+                    <select id="user_id" name="user_id" required>
+                        <option value="">Select a person</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.firstname }} {{ user.lastname }} ({{ user.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
                 <div class="form-group">
                     <label for="amount">Amount:</label>

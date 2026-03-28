@@ -150,7 +150,7 @@
                         {% if top_expenses %}
                             {% for expense in top_expenses %}
                             <tr>
-                                <td>{{ expense.description }}</td>
+                                <td>{{ expense.name }}</td>
                                 <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
                                 <td><strong>£{{ "%.2f"|format(expense.amount) }}</strong></td>
                             </tr>
