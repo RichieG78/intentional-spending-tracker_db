@@ -88,7 +88,7 @@
 <p>Here are your users:</p>
 <ul>
     {% for user in user_data %}
-        <p>{{user.id}}, {{user.username}}, {{user.email}}, {{user.password}}, {{user.created_at}}</p>
+        <p>{{ user.id }}, {{ user.firstname }} {{ user.lastname }}, {{ user.email }}, {{ user.password }}, {{ user.created_at }}</p>
         <a href="{{ url_for('user_delete', user_id=user.id) }}">Delete</a>
     {% endfor %}
 </ul>

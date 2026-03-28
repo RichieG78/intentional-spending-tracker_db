@@ -1,15 +1,15 @@
 import os
-import uuid
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text 
 
 from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from models import (
     db,
     User,
+    Expense,
+    Income,
     expenses,
     incomes,
     FixedExpense,
@@ -25,9 +25,49 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 db.init_app(app)
 
+CURRENCY_QUANT = Decimal('0.01')
+
 # Ensure all tables exist before handling any requests
 with app.app_context():
     db.create_all()
+
+
+def _extract_payload():
+    if request.is_json:
+        return request.get_json(silent=True)
+    if request.form:
+        return request.form.to_dict()
+    return None
+
+
+def _to_decimal(value):
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError):
+        return None
+
+
+def _normalize_amount(value):
+    decimal_value = _to_decimal(value)
+    if decimal_value is None:
+        return None
+    return decimal_value.quantize(CURRENCY_QUANT)
+
+
+def _to_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_datetime(raw_value):
+    if not raw_value:
+        return datetime.utcnow()
+    try:
+        return datetime.fromisoformat(raw_value)
+    except ValueError:
+        return datetime.utcnow()
 
 # Helper function to normalize all income to a monthly value
 def calculate_monthly_income(income):
@@ -192,6 +232,47 @@ def add_expense():
             
     return render_template('add-expense.html')
 
+
+@app.route('/expenses_insert', methods=['POST'])
+def expenses_insert():
+    payload = _extract_payload()
+    if not payload:
+        return jsonify({'error': 'No payload supplied'}), 400
+
+    name = payload.get('name') or payload.get('description')
+    amount = _normalize_amount(payload.get('amount'))
+    expense_type = (payload.get('type') or 'fixed').lower()
+    user_id = _to_int(payload.get('user_id'))
+
+    if not name or amount is None or user_id is None:
+        return jsonify({'error': 'name, amount, and user_id are required'}), 400
+
+    record = Expense(
+        name=name,
+        currency=(payload.get('currency') or 'EUR').upper(),
+        amount=amount,
+        date=_parse_datetime(payload.get('date')),
+        type=expense_type,
+        user_id=user_id,
+    )
+
+    db.session.add(record)
+    try:
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to insert expense', 'details': str(exc)}), 500
+
+    return jsonify({
+        'id': record.id,
+        'name': record.name,
+        'type': record.type,
+        'amount': float(record.amount),
+        'currency': record.currency,
+        'date': record.date.isoformat(),
+        'user_id': record.user_id,
+    }), 201
+
 # API Route: Delete Expense (Called via AJAX)
 @app.route('/delete-expense/<expense_id>', methods=['DELETE'])
 def delete_expense(expense_id):
@@ -244,7 +325,54 @@ def update_income(income_id):
                 except ValueError:
                     return jsonify({'success': False, 'error': 'Invalid amount'}), 400
             return jsonify({'success': True})
-    return jsonify({'success': False, 'error': 'Income not found'}), 404
+        return jsonify({'success': False, 'error': 'Income not found'}), 404
+
+
+@app.route('/income_insert', methods=['POST'])
+def income_insert():
+    payload = _extract_payload()
+    if not payload:
+        return jsonify({'error': 'No payload supplied'}), 400
+
+    name = payload.get('name') or payload.get('source')
+    amount = _normalize_amount(payload.get('amount'))
+    frequency = (payload.get('frequency') or 'monthly').lower()
+    income_type = (payload.get('income_type') or payload.get('type') or 'primary').lower()
+    gross_net = (payload.get('gross_net') or 'net').lower()
+    user_id = _to_int(payload.get('user_id'))
+
+    if not name or amount is None or user_id is None:
+        return jsonify({'error': 'name, amount, and user_id are required'}), 400
+
+    record = Income(
+        name=name,
+        type=income_type,
+        currency=(payload.get('currency') or 'EUR').upper(),
+        amount=amount,
+        frequency=frequency,
+        gross_net=gross_net,
+        date=_parse_datetime(payload.get('date')),
+        user_id=user_id,
+    )
+
+    db.session.add(record)
+    try:
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to insert income', 'details': str(exc)}), 500
+
+    return jsonify({
+        'id': record.id,
+        'name': record.name,
+        'type': record.type,
+        'amount': float(record.amount),
+        'currency': record.currency,
+        'frequency': record.frequency,
+        'gross_net': record.gross_net,
+        'date': record.date.isoformat(),
+        'user_id': record.user_id,
+    }), 201
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

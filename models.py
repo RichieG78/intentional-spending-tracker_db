@@ -2,78 +2,101 @@ import uuid
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, Text, TIMESTAMP
 
-db = SQLAlchemy()												
+db = SQLAlchemy()
+
 
 class User(db.Model):
-    user_id     = db.Column(db.Integer, primary_key=True)
-    firstname   = db.Column(db.Text, nullable=False)
-    lastname    = db.Column(db.Text, nullable=False)
-    email       = db.Column(db.Text, unique=True, nullable=False)
-	##WARNING: SECURITY: Do NOT store a password like this: just for play here
-    password    = db.Column(db.Text, nullable=False)
-    created_at  = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    __tablename__ = 'users'
 
-# --- Expense Classes ---
-# Base class for all expenses
+    id = db.Column(db.Integer, primary_key=True)
+    firstname = db.Column(db.Text, nullable=False)
+    lastname = db.Column(db.Text, nullable=False)
+    email = db.Column(db.Text, unique=True, nullable=False)
+    password = db.Column(db.Text, nullable=False)  # Demo only – never store plain text!
+    created_at = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+
+    expenses = db.relationship('Expense', backref='user', lazy=True, cascade='all, delete-orphan')
+    incomes = db.relationship('Income', backref='user', lazy=True, cascade='all, delete-orphan')
+
+
 class Expense(db.Model):
-    id          = db.Column(db.Integer, primary_key=True)
-    name        = db.Column(db.Text, nullable=False)
-    currency    = db.Column(db.Text, default='EUR', nullable=False)
-    amount      = db.Column(db.Float, nullable=False)
-    date        = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
-    type        = db.Column(db.Text, nullable=False)
-    user_id     = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    __tablename__ = 'expenses'
 
-# Subclass for fixed expenses (Target: 50%)
-class FixedExpense(Expense):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
+    currency = db.Column(db.Text, default='EUR', nullable=False)
+    amount = db.Column(db.Numeric(12, 2), nullable=False)
+    date = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    type = db.Column(db.Text, default='fixed', nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+
+class Income(db.Model):
+    __tablename__ = 'incomes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
+    type = db.Column(db.Text, nullable=False)
+    amount = db.Column(db.Numeric(12, 2), nullable=False)
+    frequency = db.Column(db.Text, default='monthly', nullable=False)
+    date = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    gross_net = db.Column(db.Text, default='net', nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+
+# --- In-memory helper classes used by the dashboard demo ---
+class _DemoExpense:
+    def __init__(self, description, amount):
+        self.id = str(uuid.uuid4())
+        self.description = description
+        self.amount = float(amount)
+        self.currency = 'EUR'
+        self.date = datetime.utcnow()
+
+
+class FixedExpense(_DemoExpense):
     def __init__(self, description, amount):
         super().__init__(description, amount)
         self.type = 'fixed'
 
-# Subclass for fun/discretionary expenses (Target: 30%)
-class FunExpense(Expense):
+
+class FunExpense(_DemoExpense):
     def __init__(self, description, amount):
         super().__init__(description, amount)
         self.type = 'fun'
 
-# Subclass for savings/future expenses (Target: 20%)
-class FutureExpense(Expense):
+
+class FutureExpense(_DemoExpense):
     def __init__(self, description, amount):
         super().__init__(description, amount)
         self.type = 'future'
 
-# --- Income Classes ---
-# Base class for income sources
-class Income(db.Model):
-    id          = db.Column(db.Integer, primary_key=True)
-    name        = db.Column(db.Text, nullable=False)
-    type        = db.Column(db.Text, nullable=False)
-    currency    = db.Column(db.Text, default='EUR', nullable=False)
-    amount      = db.Column(db.Float, nullable=False)
-    frequency   = db.Column(db.Text, nullable=False)  # e.g., 'monthly', 'weekly'
-    date        = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
-    gross_net   = db.Column(db.Text, nullable=False)  # 'gross' or 'net'
-    user_id     = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
 
-# Subclass for the main salary/primary income
-class PrimaryIncome(Income):
+class _DemoIncome:
+    def __init__(self, amount, frequency, description):
+        self.id = str(uuid.uuid4())
+        self.description = description
+        self.amount = float(amount)
+        self.frequency = frequency
+        self.type = 'primary'
+        self.currency = 'EUR'
+        self.created_at = datetime.utcnow()
+
+
+class PrimaryIncome(_DemoIncome):
     def __init__(self, amount, frequency):
-        super().__init__(amount, frequency)
-        self.description = "Primary Income"
+        super().__init__(amount, frequency, "Primary Income")
         self.type = 'primary'
 
-# Subclass for any additional income sources
-class OtherIncome(Income):
-    def __init__(self, amount, frequency, description=None):
-        super().__init__(amount, frequency)
-        self.type = 'other'
-        if description:
-            self.description = description
-        else:
-             self.description = "Other Income"
 
-# In-memory storage (reset on server restart)
+class OtherIncome(_DemoIncome):
+    def __init__(self, amount, frequency, description=None):
+        label = description if description else "Other Income"
+        super().__init__(amount, frequency, label)
+        self.type = 'other'
+
+
+# In-memory storage leveraged by dashboard visualisations
 expenses = []
 incomes = []
