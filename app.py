@@ -19,9 +19,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 db.init_app(app)
 
-# Smallest coin value so we can round money the same way everywhere.
-CURRENCY_QUANT = Decimal('0.01')
-
 # Ensure all tables exist before handling any requests
 with app.app_context():
     db.create_all()
