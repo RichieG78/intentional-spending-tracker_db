@@ -12,21 +12,23 @@
 My Intentional Spending Tracker is a Flask web application backed by PostgreSQL. It provides authenticated access to a budgeting dashboard where users can:
 - record income and expenses,
 - categorize expenses into fixed, fun, and future groups,
+- set expense recurrence (weekly, fortnightly, monthly, annually),
+- automatically assign new income and expense records to the logged-in user,
 - edit and delete records,
 - view aggregated totals and visual indicators,
 - review annual performance trends.
 
-## How to user the Intentional Spending application
+## How to use the Intentional Spending application
 
 Quick start (aligned to `about.html`):
 1. Open the Dashboard.
 2. Add your Income first (use net/take-home amount where possible).
 3. Add Expenses as they occur.
-4. Assign each expense to `Fixed`, `Fun`, or `Future`.
+4. Assign each expense to `Fixed`, `Fun`, or `Future`, and choose its recurrence.
 5. Review Dashboard visuals and totals to compare actual spending vs the 50/30/20 targets.
 6. Use the Performance page for annual trend review and recommendations.
 
-**Examiner note: Please visit `/about` first. This page contains the same step-by-step usage guidance shown below and is the primary in-app instruction page. It also contains a video explaining how the use the application.**
+**Examiner note: Please visit `/about` first. This page contains the same step-by-step usage guidance shown below and is the primary in-app instruction page. It also contains a video explaining how to use the application.**
 
 The application design was inspired by a 50/30/20 budgeting video referenced on the About page:
 - Video reference: Nischa, YouTube, 50/30/20 budgeting explainer, https://www.youtube.com/watch?v=4sT2B2SRypo
@@ -47,6 +49,7 @@ Evidence in this project:
   - User
   - Expense
   - Income
+- Expense and Income include a frequency field to represent recurrence.
 - Primary and foreign keys implemented:
   - User.id is the parent key.
   - Expense.user_id and Income.user_id reference User.
@@ -263,6 +266,17 @@ Run tests locally:
 Expected result:
 - 4 tests run, all passing.
 
+## UI and UX design Changes compared with previous python assignment version (Design and UI)
+- Updated the visual style of the dashboard to a modern analytics-inspired design with improved spacing, color system, and card hierarchy.
+- Refined layout behavior so key actions are easier to find (for example, section-level Add Expense actions for Fixed/Fun/Future).
+- Replaced text-based Edit/Delete controls with icon-based action buttons using SVG assets for a cleaner card interface.
+- Repositioned expense action icons to the top-right of each expense card and reduced icon size for better visual balance.
+- Standardized icon button styling to use subtle borders and transparent backgrounds for a consistent look.
+- Improved add-expense usability by changing expense type input to radio buttons and adding recurrence radio options.
+- Improved add-income flow by removing manual user selection and assigning records automatically to the logged-in account.
+- Updated app naming in shared navigation to Intentional Spending Tracker.
+- To compare this new version to the previous python project you can visit that project at this git repo: https://github.com/RichieG78/MyFinancialTracker.git
+
 ## Distinction Positioning Summary
 This submission targets distinction by demonstrating:
 - a clear relational schema and complete CRUD coverage,
@@ -272,6 +286,6 @@ This submission targets distinction by demonstrating:
 - a deployed, accessible, functional hosted application.
 
 ## Examiner Note on .env and Secret Key Evidence
-For assessment transparency, the .env file has been added to .gitignore and is no longer stored in the repository history. A copy is included in the zipped folder uploaded as part of the assignment submission so the examiner can verify that environment-variable configuration was implemented, including use of SECRET_KEY in the Flask setup.
+For assessment transparency, the .env file has been added to .gitignore and is not stored in the repository history. A copy is included in the zipped folder uploaded as part of the assignment submission so the examiner can verify that environment-variable configuration was implemented, including use of SECRET_KEY in the Flask setup.
 
 
