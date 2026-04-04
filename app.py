@@ -421,17 +421,23 @@ def add_income():
 @login_required
 def add_expense():
     """Shows the add-expense form and stores the purchase once submitted."""
-    users = User.query.order_by(User.firstname.asc()).all()
     error_message = None
+    allowed_types = {'fixed', 'fun', 'future'}
+    selected_expense_type = (request.args.get('expense_type') or 'fixed').strip().lower()
+    if selected_expense_type not in allowed_types:
+        selected_expense_type = 'fixed'
 
     if request.method == 'POST':
         description = _clean_text(request.form.get('description'))
         amount = _normalize_amount(request.form.get('amount'))
-        expense_type = (request.form.get('expense_type') or 'fixed').lower()
-        user_id = _to_int(request.form.get('user_id'))
+        expense_type = (request.form.get('expense_type') or selected_expense_type).lower()
+        if expense_type not in allowed_types:
+            expense_type = 'fixed'
+        selected_expense_type = expense_type
+        user_id = current_user.id
 
-        if not description or amount is None or user_id is None:
-            error_message = 'Description, amount, and user are required.'
+        if not description or amount is None:
+            error_message = 'Description and amount are required.'
         else:
             record = Expense(
                 name=description,
@@ -450,7 +456,11 @@ def add_expense():
                 db.session.rollback()
                 error_message = 'Could not save the expense. Please try again.'
 
-    return render_template('add-expense.html', users=users, error_message=error_message)
+    return render_template(
+        'add-expense.html',
+        error_message=error_message,
+        selected_expense_type=selected_expense_type,
+    )
 
 
 # --- Expense CRUD API (database-backed) ---

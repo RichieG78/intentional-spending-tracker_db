@@ -1,7 +1,7 @@
 # My Intentional Spending Tracker
 
 ## Live Web App
-- Render URL: https://myfinancialtracker.onrender.com/
+- Render URL: https://intentional-spending-tracker-db.onrender.com
 - Repository: https://github.com/RichieG78/intentional-spending-tracker_db.git
 
 **Examiner test login:** Please use the following credentials to access the application.
@@ -9,16 +9,14 @@
 - Password: `demo1234`
 
 ## Project Summary
-My Financial Tracker is a Flask web application backed by PostgreSQL. It provides authenticated access to a budgeting dashboard where users can:
+My Intentional Spending Tracker is a Flask web application backed by PostgreSQL. It provides authenticated access to a budgeting dashboard where users can:
 - record income and expenses,
 - categorize expenses into fixed, fun, and future groups,
 - edit and delete records,
 - view aggregated totals and visual indicators,
 - review annual performance trends.
 
-## How to user the Intentional spender applaction
-
-**Examiner note: Please visit `/about` first. This page contains the same step-by-step usage guidance shown below and is the primary in-app instruction page.**
+## How to user the Intentional Spending application
 
 Quick start (aligned to `about.html`):
 1. Open the Dashboard.
@@ -27,6 +25,8 @@ Quick start (aligned to `about.html`):
 4. Assign each expense to `Fixed`, `Fun`, or `Future`.
 5. Review Dashboard visuals and totals to compare actual spending vs the 50/30/20 targets.
 6. Use the Performance page for annual trend review and recommendations.
+
+**Examiner note: Please visit `/about` first. This page contains the same step-by-step usage guidance shown below and is the primary in-app instruction page. It also contains a video explaining how the use the application.**
 
 The application design was inspired by a 50/30/20 budgeting video referenced on the About page:
 - Video reference: Nischa, YouTube, 50/30/20 budgeting explainer, https://www.youtube.com/watch?v=4sT2B2SRypo
@@ -165,14 +165,75 @@ Evidence in this project:
 6. Open:
    - http://127.0.0.1:5000
 
-## Render Deployment Notes
-- Build command:
-  - pip install -r requirements.txt
-- Start command:
-  - gunicorn app:app
-- Required environment variables:
-  - DATABASE_URL
-  - SECRET_KEY
+## Deploy And Access On Render.com
+
+Use this checklist to deploy from scratch and confirm the app is accessible.
+
+### 1) Push code to GitHub
+1. Ensure your latest code is committed and pushed.
+2. Confirm the repository includes:
+  - app.py
+  - requirements.txt
+  - templates/
+  - static/
+
+### 2) Create a PostgreSQL database on Render
+1. Log in to Render.
+2. Click New +, then choose PostgreSQL.
+3. Set a name and region.
+4. Create the database.
+5. After provisioning, copy the Internal Database URL from the database dashboard.
+
+### 3) Create the web service on Render
+1. Click New +, then choose Web Service.
+2. Connect your GitHub repository.
+3. Configure:
+  - Environment: Python
+  - Build Command: pip install -r requirements.txt
+  - Start Command: gunicorn app:app
+4. Choose region, instance type, and branch.
+5. Click Create Web Service.
+
+### 4) Add required environment variables
+In the Web Service Settings > Environment, add:
+1. DATABASE_URL = the Render PostgreSQL Internal Database URL
+2. SECRET_KEY = a long random value
+
+Generate a secure SECRET_KEY locally with:
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+
+Important:
+- Do not wrap values in extra quotes when setting environment variables in Render.
+- Do not use your local .env file in Render. Set values in the Render dashboard.
+
+### 5) Deploy
+1. Trigger a deploy from the latest commit.
+2. Open the Deploy Logs and wait for a successful status.
+3. Confirm you see the Gunicorn startup without fatal errors.
+
+### 6) Access the live app
+1. Open your service URL from Render (for this project: https://intentional-spending-tracker-db.onrender.com).
+2. You should be able to browse public pages immediately:
+  - /login
+  - /about
+3. Log in with a valid user account to access protected routes like /dashboard.
+
+### 7) Verify after deployment
+Run this quick smoke test:
+1. Open /about and confirm page content loads.
+2. Open /dashboard while logged out and confirm redirect to /login.
+3. Sign in and confirm redirect to /dashboard.
+4. Create one income and one expense record and confirm they display.
+
+### 8) Common Render issues
+1. 502/503 at startup:
+  - Check Start Command is exactly gunicorn app:app.
+2. Database errors:
+  - Recheck DATABASE_URL in Render environment settings.
+3. Session or auth problems:
+  - Recheck SECRET_KEY is set and non-empty.
+4. Missing package/module:
+  - Rebuild after confirming requirements.txt includes all dependencies.
 
 ## Dependencies
 Defined in requirements.txt:

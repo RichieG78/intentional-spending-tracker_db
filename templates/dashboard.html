@@ -139,7 +139,6 @@
     <div id="expense-container">
         <div class="expense-header">
             <h2>Expense Tracker</h2>
-            <a href="{{ url_for('add_expense') }}"><button class="btn-new">Add Expense</button></a>
         </div>
         <div class="expense-columns">
             
@@ -147,6 +146,7 @@
             <div class="expense-category">
                 <div class="category-header">
                     <h3>Fixed</h3>
+                    <a href="{{ url_for('add_expense', expense_type='fixed') }}"><button class="btn-new">Add Expense</button></a>
                 </div>
                 {% for expense in expenses if expense.type == 'fixed' %}
                 <div class="transaction-card" data-id="{{ expense.id }}">
@@ -170,6 +170,7 @@
             <div class="expense-category">
                 <div class="category-header">
                     <h3>Fun</h3>
+                    <a href="{{ url_for('add_expense', expense_type='fun') }}"><button class="btn-new">Add Expense</button></a>
                 </div>
                 {% for expense in expenses if expense.type == 'fun' %}
                 <div class="transaction-card" data-id="{{ expense.id }}">
@@ -193,6 +194,7 @@
             <div class="expense-category">
                 <div class="category-header">
                     <h3>Future</h3>
+                    <a href="{{ url_for('add_expense', expense_type='future') }}"><button class="btn-new">Add Expense</button></a>
                 </div>
                 {% for expense in expenses if expense.type == 'future' %}
                 <div class="transaction-card" data-id="{{ expense.id }}">
