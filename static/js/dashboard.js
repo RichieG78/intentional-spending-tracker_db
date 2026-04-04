@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.success) {
                         // Update UI with new static values
                         titleEl.textContent = newDesc;
-                        amountEl.textContent = '$' + parseFloat(newAmount).toFixed(2);
+                        amountEl.textContent = '€' + parseFloat(newAmount).toFixed(2);
                         this.textContent = 'Edit'; // Reset button text
                          location.reload(); // Refresh to update charts/totals
                     } else {
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // ENTER EDIT MODE: Replace text with input fields
                 const currentTitle = titleEl.textContent;
-                const currentAmount = amountEl.textContent.replace('$', '').trim();
+                const currentAmount = amountEl.textContent.replace('€', '').trim();
 
                 // Inject HTML input fields
                 titleEl.innerHTML = `<input type="text" value="${currentTitle}" class="edit-input-title">`;
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.success) {
                         titleEl.textContent = newDesc;
-                        amountEl.textContent = '$' + parseFloat(newAmount).toFixed(2);
+                        amountEl.textContent = '€' + parseFloat(newAmount).toFixed(2);
                         this.textContent = 'Edit';
                         location.reload();
                     } else {
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // ENTER EDIT MODE
                 const currentTitle = titleEl.textContent;
-                const currentAmount = amountEl.textContent.replace('$', '').trim();
+                const currentAmount = amountEl.textContent.replace('€', '').trim();
 
                 titleEl.innerHTML = `<input type="text" value="${currentTitle}" class="edit-income-title">`;
                 amountEl.innerHTML = `<input type="number" step="0.01" value="${currentAmount}" class="edit-income-amount">`;

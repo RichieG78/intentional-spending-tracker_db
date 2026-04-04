@@ -14,8 +14,6 @@
         <ul>
             <li><a href="{{ url_for('dashboard') }}" class="{% if active_page|default('') == 'dashboard' %}active{% endif %}">Dashboard</a></li>
             <li><a href="{{ url_for('performance') }}" class="{% if active_page|default('') == 'performance' %}active{% endif %}">Performance</a></li>
-            <li><a href="{{ url_for('add_income') }}" class="{% if active_page|default('') == 'add_income' %}active{% endif %}">Add Income</a></li>
-            <li><a href="{{ url_for('add_expense') }}" class="{% if active_page|default('') == 'add_expense' %}active{% endif %}">Add Expense</a></li>
             <li><a href="{{ url_for('about') }}" class="{% if active_page|default('') == 'about' %}active{% endif %}">About</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
         </ul>

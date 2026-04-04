@@ -24,7 +24,7 @@
         <div class="income-row" data-id="{{ primary_income.id if primary_income else '' }}">
             <div class="income-details-wrapper">
                 <span class="income-title">{{ primary_income.name if primary_income else 'Primary Income' }}</span>
-                <span class="income-amount">${{ "%.2f"|format(primary_income.amount) if primary_income else "0.00" }}</span>
+                <span class="income-amount">€{{ "%.2f"|format(primary_income.amount) if primary_income else "0.00" }}</span>
             </div>
             {% if primary_income %}
             <div class="income-actions">
@@ -38,7 +38,7 @@
         <div class="income-row" data-id="{{ income.id }}">
             <div class="income-details-wrapper">
                 <span class="income-title">{{ income.name }}</span>
-                <span class="income-amount">${{ "%.2f"|format(income.amount) }}</span>
+                <span class="income-amount">€{{ "%.2f"|format(income.amount) }}</span>
             </div>
             <div class="income-actions">
                 <button class="btn-edit-income" style="padding: 2px 5px; font-size: 0.7rem;">Edit</button>
@@ -50,7 +50,7 @@
 
         <div class="income-row total-row">
             <span class="label">Total Monthly Income</span>
-            <span class="amount">${{ "%.2f"|format(total_income) }}</span>
+            <span class="amount">€{{ "%.2f"|format(total_income) }}</span>
         </div>
 
         {% set total_expenses = total_fixed + total_fun + total_future %}
@@ -58,18 +58,18 @@
 
         <div class="income-row" style="border-bottom: 1px solid #eee; padding: 8px 0;">
             <span class="label">Total Expenses</span>
-            <span class="amount" style="color: #e74c3c;">- ${{ "%.2f"|format(total_expenses) }}</span>
+            <span class="amount" style="color: #e74c3c;">- €{{ "%.2f"|format(total_expenses) }}</span>
         </div>
 
         <div class="income-row" style="padding-top: 10px; font-weight: bold; font-size: 1.1em;">
             <span class="label">Remaining</span>
             {% if remaining < 0 %}
             <span class="amount" style="color: #c0392b;">
-                ${{ "%.2f"|format(remaining) }}
+                €{{ "%.2f"|format(remaining) }}
             </span>
             {% else %}
             <span class="amount" style="color: #27ae60;">
-                ${{ "%.2f"|format(remaining) }}
+                €{{ "%.2f"|format(remaining) }}
             </span>
             {% endif %}
         </div>
@@ -152,7 +152,7 @@
                 <div class="transaction-card" data-id="{{ expense.id }}">
                     <div class="transaction-details">
                         <h4 class="transaction-title">{{ expense.name }}</h4>
-                        <span class="transaction-amount">${{ "%.2f"|format(expense.amount) }}</span>
+                        <span class="transaction-amount">€{{ "%.2f"|format(expense.amount) }}</span>
                     </div>
                     <div class="transaction-actions">
                         <button class="btn-edit">Edit</button>
@@ -162,7 +162,7 @@
                 {% endfor %}
                 <div class="total-row" style="margin-top: 15px; border-top: 2px solid #ccc; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold;">
                     <span>Total Fixed:</span>
-                    <span>${{ "%.2f"|format(expenses | selectattr("type", "equalto", "fixed") | sum(attribute='amount')) }}</span>
+                    <span>€{{ "%.2f"|format(expenses | selectattr("type", "equalto", "fixed") | sum(attribute='amount')) }}</span>
                 </div>
             </div>
 
@@ -175,7 +175,7 @@
                 <div class="transaction-card" data-id="{{ expense.id }}">
                     <div class="transaction-details">
                         <h4 class="transaction-title">{{ expense.name }}</h4>
-                        <span class="transaction-amount">${{ "%.2f"|format(expense.amount) }}</span>
+                        <span class="transaction-amount">€{{ "%.2f"|format(expense.amount) }}</span>
                     </div>
                     <div class="transaction-actions">
                         <button class="btn-edit">Edit</button>
@@ -185,7 +185,7 @@
                 {% endfor %}
                 <div class="total-row" style="margin-top: 15px; border-top: 2px solid #ccc; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold;">
                     <span>Total Fun:</span>
-                    <span>${{ "%.2f"|format(expenses | selectattr("type", "equalto", "fun") | sum(attribute='amount')) }}</span>
+                    <span>€{{ "%.2f"|format(expenses | selectattr("type", "equalto", "fun") | sum(attribute='amount')) }}</span>
                 </div>
             </div>
 
@@ -198,7 +198,7 @@
                 <div class="transaction-card" data-id="{{ expense.id }}">
                     <div class="transaction-details">
                         <h4 class="transaction-title">{{ expense.name }}</h4>
-                        <span class="transaction-amount">${{ "%.2f"|format(expense.amount) }}</span>
+                        <span class="transaction-amount">€{{ "%.2f"|format(expense.amount) }}</span>
                     </div>
                     <div class="transaction-actions">
                         <button class="btn-edit">Edit</button>
@@ -208,7 +208,7 @@
                 {% endfor %}
                 <div class="total-row" style="margin-top: 15px; border-top: 2px solid #ccc; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold;">
                     <span>Total Future:</span>
-                    <span>${{ "%.2f"|format(expenses | selectattr("type", "equalto", "future") | sum(attribute='amount')) }}</span>
+                    <span>€{{ "%.2f"|format(expenses | selectattr("type", "equalto", "future") | sum(attribute='amount')) }}</span>
                 </div>
             </div>
 

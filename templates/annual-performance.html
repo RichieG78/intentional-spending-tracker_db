@@ -22,17 +22,17 @@
         <div class="performance-grid">
             <div class="kpi-card">
                 <span class="kpi-title">Projected Annual Income</span>
-                <span class="kpi-value green">£{{ "{:,.2f}".format(annual_income) }}</span>
+                <span class="kpi-value green">€{{ "{:,.2f}".format(annual_income) }}</span>
             </div>
             <div class="kpi-card">
                 <span class="kpi-title">Total Recorded Spend</span>
-                <span class="kpi-value">£{{ "{:,.2f}".format(annual_expense) }}</span>
+                <span class="kpi-value">€{{ "{:,.2f}".format(annual_expense) }}</span>
             </div>
             <div class="kpi-card">
                 <span class="kpi-title">Net Position (Yearly)</span>
                 {% set net = annual_income - annual_expense %}
                 <span class="kpi-value {{ 'green' if net > 0 else 'red' }}">
-                    £{{ "{:,.2f}".format(net) }}
+                    €{{ "{:,.2f}".format(net) }}
                 </span>
             </div>
         </div>
@@ -64,7 +64,7 @@
                             <tr>
                                 <td>{{ expense.name }}</td>
                                 <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
-                                <td><strong>£{{ "%.2f"|format(expense.amount) }}</strong></td>
+                                <td><strong>€{{ "%.2f"|format(expense.amount) }}</strong></td>
                             </tr>
                             {% endfor %}
                         {% else %}
@@ -122,7 +122,7 @@
                         beginAtZero: true,
                          ticks: {
                             callback: function(value, index, values) {
-                                return '£' + value;
+                                return '€' + value;
                             }
                         }
                     }

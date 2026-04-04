@@ -334,7 +334,7 @@ def performance():
     if _name_contains(['insurance']):
         recommendations.append({
             "title": "Insurance Review",
-            "text": "You have listed insurance expenses. Compare quotes with our partner <a href='#'>SafeCover</a> to potentially save up to £200/year.",
+            "text": "You have listed insurance expenses. Compare quotes with our partner <a href='#'>SafeCover</a> to potentially save up to €200/year.",
             "type": "opportunity"
         })
 
@@ -348,7 +348,7 @@ def performance():
     if _name_contains(['broadband', 'internet', 'wifi']):
          recommendations.append({
             "title": "Broadband Deal",
-            "text": "Is your contract ending soon? You might be overpaying for broadband. <a href='#'>NetCompare</a> has deals from £25/mo.",
+            "text": "Is your contract ending soon? You might be overpaying for broadband. <a href='#'>NetCompare</a> has deals from €25/mo.",
             "type": "opportunity"
         })
 
