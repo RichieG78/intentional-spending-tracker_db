@@ -1,26 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Financial Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-<!-- Side Navigation -->
-    <nav><aside>
-        <h2>My Financial Tracker</h2>
-        <ul>
-            <li><a href="{{ url_for('dashboard') }}" class="active">Dashboard</a></li>
-            <li><a href="{{ url_for('performance') }}">Performance</a></li>
-            <li><a href="{{ url_for('add_income') }}">Add Income</a></li>
-            <li><a href="{{ url_for('add_expense') }}">Add Expense</a></li>
-            <li><a href="{{ url_for('index') }}">About</a></li>
-            <li style="margin-top: auto;"><a href="{{ url_for('logout') }}">Logout</a></li>
-    </aside></nav>
+{% extends "base.html" %}
 
-<!-- Income Container -->
-    <main>
+{% set show_sidebar = true %}
+{% set active_page = 'dashboard' %}
+
+{% block title %}My Financial Tracker{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock %}
+
+{% block content %}
+<main>
 <!-- Top Row: Income and Visualisation -->
     <div class="top-row">
 
@@ -225,13 +215,15 @@
         </div>
     </div>
     </main>
-    <div id="financial-data" 
+    <div id="financial-data"
          data-total-income="{{ total_income }}"
          data-total-fixed="{{ total_fixed }}"
          data-total-fun="{{ total_fun }}"
          data-total-future="{{ total_future }}"
          style="display:none;"></div>
-    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-</body>
-</html>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

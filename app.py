@@ -5,6 +5,7 @@ from urllib.parse import urljoin, urlparse
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from models import (
@@ -56,6 +57,23 @@ def _is_safe_next_url(target):
     redirect_url = urlparse(urljoin(request.host_url, target))
     return redirect_url.scheme in ('http', 'https') and host_url.netloc == redirect_url.netloc
 
+
+def _password_is_hashed(password_value):
+    return isinstance(password_value, str) and password_value.startswith(('pbkdf2:', 'scrypt:'))
+
+
+def _hash_password(raw_password):
+    # Force pbkdf2 for compatibility with Python builds that do not support scrypt.
+    return generate_password_hash(raw_password, method='pbkdf2:sha256')
+
+
+def _password_matches(stored_password, plain_password):
+    if not stored_password or not plain_password:
+        return False
+    if _password_is_hashed(stored_password):
+        return check_password_hash(stored_password, plain_password)
+    return stored_password == plain_password
+
 # Ensure all tables exist before handling any requests
 with app.app_context():
     db.create_all()
@@ -80,8 +98,11 @@ def login():
         # Look up the person by email
         user = User.query.filter_by(email=email).first()
 
-        # Check the password matches (plain-text comparison – demo only)
-        if user and user.password == password:
+        # Check hashed passwords (with one-time fallback for legacy plain-text rows).
+        if user and _password_matches(user.password, password):
+            if not _password_is_hashed(user.password):
+                user.password = _hash_password(password)
+                db.session.commit()
             login_user(user)
 
             next_url = (request.form.get('next') or next_url or '').strip()
@@ -105,7 +126,13 @@ def logout():
 # Home Route: Displays the landing page
 @app.route('/')
 def index():
-    """Shows the welcome page and everyone currently signed up."""
+    """Redirects to the main dashboard page."""
+    return redirect(url_for('dashboard'))
+
+
+@app.route('/about')
+def about():
+    """Shows the about page with app background and budgeting guidance."""
     user_data = User.query.all()
     return render_template('about.html', user_data=user_data)
 
@@ -140,7 +167,7 @@ def user_insert():
         firstname=firstname,
         lastname=lastname,
         email=email,
-        password=password,
+        password=_hash_password(password),
     )
 
     db.session.add(user)
@@ -196,7 +223,7 @@ def user_detail(user_id):
         if 'password' in payload:
             value = _clean_text(payload.get('password'))
             if value:
-                user.password = value
+                user.password = _hash_password(value)
 
         # Try to save the edits, surfacing friendly errors on conflicts
         try:

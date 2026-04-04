@@ -1,95 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Income - Financial Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/add-income.css') }}">
-</head>
-<body>
-    <!-- Side Navigation -->
-    <nav>
-        <h2>My Financial Tracker</h2>
-        <ul>
-            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('performance') }}">Performance</a></li>
-            <li><a href="{{ url_for('add_income') }}" class="active">Add Income</a></li>
-            <li><a href="{{ url_for('add_expense') }}">Add Expense</a></li>
-        </ul>
-    </nav>
+{% extends "base.html" %}
 
-    <!-- Main Content -->
-    <main>
-        <div class="card">
-            <h1>Add Income</h1>
-            {% if error_message %}
-            <p class="form-error">{{ error_message }}</p>
-            {% endif %}
-            <form action="{{ url_for('add_income') }}" method="post">
-                <!-- Description field removed as per requirements -->
+{% set show_sidebar = true %}
+{% set active_page = 'add_income' %}
 
-                <div class="form-group">
-                    <label for="user_id">User:</label>
-                    <select id="user_id" name="user_id" required>
-                        <option value="">Select a person</option>
-                        {% for user in users %}
-                        <option value="{{ user.id }}">{{ user.firstname }} {{ user.lastname }} ({{ user.email }})</option>
-                        {% endfor %}
-                    </select>
+{% block title %}Add Income - Financial Tracker{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add-income.css') }}">
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="card">
+        <h1>Add Income</h1>
+        {% if error_message %}
+        <p class="form-error">{{ error_message }}</p>
+        {% endif %}
+        <form action="{{ url_for('add_income') }}" method="post">
+            <div class="form-group">
+                <label for="user_id">User:</label>
+                <select id="user_id" name="user_id" required>
+                    <option value="">Select a person</option>
+                    {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.firstname }} {{ user.lastname }} ({{ user.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" name="amount" step="0.01" required placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label for="frequency">Frequency:</label>
+                <select id="frequency" name="frequency" required>
+                    <option value="hourly">Hourly</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="annually">Annually</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Income Type:</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" id="primary" name="income_type" value="primary" checked required>
+                        Primary Income
+                    </label>
                 </div>
-
-                <div class="form-group">
-                    <label for="amount">Amount:</label>
-                    <input type="number" id="amount" name="amount" step="0.01" required placeholder="0.00">
+                <div class="radio-group" style="margin-top: 10px;">
+                    <label class="radio-label">
+                        <input type="radio" id="other" name="income_type" value="other">
+                        Other Income
+                    </label>
+                    <input type="text" name="other_description" placeholder="Description (optional)" style="width: 200px; margin-left: 10px; padding: 5px;">
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="frequency">Frequency:</label>
-                    <select id="frequency" name="frequency" required>
-                        <option value="hourly">Hourly</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly" selected>Monthly</option>
-                        <option value="annually">Annually</option>
-                    </select>
+            <div class="form-group">
+                <label>Income Details:</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" id="gross" name="amount_type" value="gross" checked required>
+                        Gross Income
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" id="net" name="amount_type" value="net">
+                        Net Income
+                    </label>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label>Income Type:</label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" id="primary" name="income_type" value="primary" checked required> 
-                            Primary Income
-                        </label>
-                    </div>
-                     <div class="radio-group" style="margin-top: 10px;">
-                        <label class="radio-label">
-                            <input type="radio" id="other" name="income_type" value="other"> 
-                            Other Income
-                        </label>
-                        <input type="text" name="other_description" placeholder="Description (optional)" style="width: 200px; margin-left: 10px; padding: 5px;">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Income Details:</label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" id="gross" name="amount_type" value="gross" checked required> 
-                            Gross Income
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" id="net" name="amount_type" value="net"> 
-                            Net Income
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-new">Add Income</button>
-                </div>
-            </form>
-        </div>
-    </main>
-</body>
-</html>
+            <div class="form-actions">
+                <button type="submit" class="btn-new">Add Income</button>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

@@ -1,10 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Performance - My Financial Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% extends "base.html" %}
+
+{% set show_sidebar = true %}
+{% set active_page = 'performance' %}
+
+{% block title %}Financial Performance - My Financial Tracker{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock %}
+
+{% block head_extra %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .performance-grid {
@@ -90,20 +95,10 @@
             font-weight: normal;
         }
     </style>
-</head>
-<body>
-    <!-- Reuse Sidebar Navigation -->
-    <nav><aside>
-        <h2>My Financial Tracker</h2>
-        <ul>
-            <li><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('performance') }}" class="active">Performance</a></li>
-            <li><a href="{{ url_for('add_income') }}">Add Income</a></li>
-            <li><a href="{{ url_for('add_expense') }}">Add Expense</a></li>
-    </aside></nav>
+{% endblock %}
 
-    <main>
+{% block content %}
+<main>
         <h1>Annual Financial Performance</h1>
         
         <!-- KPI Cards -->
@@ -181,7 +176,9 @@
         </div>
 
     </main>
+{% endblock %}
 
+{% block scripts %}
     <script>
         // Data passed from Flask
         const chartElement = document.getElementById('monthlyChart');
@@ -216,5 +213,4 @@
             }
         });
     </script>
-</body>
-</html>
+{% endblock %}
