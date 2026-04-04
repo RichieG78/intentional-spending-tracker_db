@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 {% endblock %}
 
+{% block body_attrs %} class="dashboard-page"{% endblock %}
+
 {% block content %}
 <main>
 <!-- Top Row: Income and Visualisation -->
@@ -28,8 +30,8 @@
             </div>
             {% if primary_income %}
             <div class="income-actions">
-                <button class="btn-edit-income" style="padding: 2px 5px; font-size: 0.7rem;">Edit</button>
-                <button class="btn-delete-income" style="padding: 2px 5px; font-size: 0.7rem;">Del</button>
+                <button class="btn-edit-income icon-btn" data-mode="edit" aria-label="Edit income" title="Edit income"><img class="icon-svg" src="{{ url_for('static', filename='icons/edit.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Edit</span></button>
+                <button class="btn-delete-income icon-btn" aria-label="Delete income" title="Delete income"><img class="icon-svg" src="{{ url_for('static', filename='icons/trash.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Delete</span></button>
             </div>
             {% endif %}
         </div>
@@ -41,8 +43,8 @@
                 <span class="income-amount">€{{ "%.2f"|format(income.amount) }}</span>
             </div>
             <div class="income-actions">
-                <button class="btn-edit-income" style="padding: 2px 5px; font-size: 0.7rem;">Edit</button>
-                <button class="btn-delete-income" style="padding: 2px 5px; font-size: 0.7rem;">Del</button>
+                <button class="btn-edit-income icon-btn" data-mode="edit" aria-label="Edit income" title="Edit income"><img class="icon-svg" src="{{ url_for('static', filename='icons/edit.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Edit</span></button>
+                <button class="btn-delete-income icon-btn" aria-label="Delete income" title="Delete income"><img class="icon-svg" src="{{ url_for('static', filename='icons/trash.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Delete</span></button>
             </div>
         </div>
         {% endfor %}
@@ -155,8 +157,8 @@
                         <span class="transaction-amount">€{{ "%.2f"|format(expense.amount) }}</span>
                     </div>
                     <div class="transaction-actions">
-                        <button class="btn-edit">Edit</button>
-                        <button class="btn-delete">Delete</button>
+                        <button class="btn-edit icon-btn" data-mode="edit" aria-label="Edit expense" title="Edit expense"><img class="icon-svg" src="{{ url_for('static', filename='icons/edit.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Edit</span></button>
+                        <button class="btn-delete icon-btn" aria-label="Delete expense" title="Delete expense"><img class="icon-svg" src="{{ url_for('static', filename='icons/trash.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Delete</span></button>
                     </div>
                 </div>
                 {% endfor %}
@@ -179,8 +181,8 @@
                         <span class="transaction-amount">€{{ "%.2f"|format(expense.amount) }}</span>
                     </div>
                     <div class="transaction-actions">
-                        <button class="btn-edit">Edit</button>
-                        <button class="btn-delete">Delete</button>
+                        <button class="btn-edit icon-btn" data-mode="edit" aria-label="Edit expense" title="Edit expense"><img class="icon-svg" src="{{ url_for('static', filename='icons/edit.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Edit</span></button>
+                        <button class="btn-delete icon-btn" aria-label="Delete expense" title="Delete expense"><img class="icon-svg" src="{{ url_for('static', filename='icons/trash.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Delete</span></button>
                     </div>
                 </div>
                 {% endfor %}
@@ -203,8 +205,8 @@
                         <span class="transaction-amount">€{{ "%.2f"|format(expense.amount) }}</span>
                     </div>
                     <div class="transaction-actions">
-                        <button class="btn-edit">Edit</button>
-                        <button class="btn-delete">Delete</button>
+                        <button class="btn-edit icon-btn" data-mode="edit" aria-label="Edit expense" title="Edit expense"><img class="icon-svg" src="{{ url_for('static', filename='icons/edit.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Edit</span></button>
+                        <button class="btn-delete icon-btn" aria-label="Delete expense" title="Delete expense"><img class="icon-svg" src="{{ url_for('static', filename='icons/trash.svg') }}" alt="" aria-hidden="true"><span class="sr-only">Delete</span></button>
                     </div>
                 </div>
                 {% endfor %}

@@ -57,8 +57,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const titleEl = detailsDiv.querySelector('.transaction-title');
             const amountEl = detailsDiv.querySelector('.transaction-amount');
             
-            // CHECK MODE: If button says 'Save', we are currently in Edit Mode -> Submit changes
-            if (this.textContent === 'Save') {
+            // CHECK MODE: Save mode means we are currently editing and should submit updates.
+            if (this.dataset.mode === 'save') {
                 // Extract values from the inputs
                 const newDesc = titleEl.querySelector('input').value;
                 const newAmount = amountEl.querySelector('input').value;
@@ -80,7 +80,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Update UI with new static values
                         titleEl.textContent = newDesc;
                         amountEl.textContent = '€' + parseFloat(newAmount).toFixed(2);
-                        this.textContent = 'Edit'; // Reset button text
+                        this.dataset.mode = 'edit';
+                        this.setAttribute('aria-label', 'Edit expense');
+                        this.setAttribute('title', 'Edit expense');
+                        this.innerHTML = '<img class="icon-svg" src="/static/icons/edit.svg" alt="" aria-hidden="true"><span class="sr-only">Edit</span>';
                          location.reload(); // Refresh to update charts/totals
                     } else {
                         alert('Error updating expense');
@@ -96,7 +99,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 titleEl.innerHTML = `<input type="text" value="${currentTitle}" class="edit-input-title">`;
                 amountEl.innerHTML = `<input type="number" step="0.01" value="${currentAmount}" class="edit-input-amount">`;
                 
-                this.textContent = 'Save'; // Change button text
+                this.dataset.mode = 'save';
+                this.setAttribute('aria-label', 'Save expense');
+                this.removeAttribute('title');
+                this.textContent = 'Save';
             }
         });
     });
@@ -147,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const amountEl = detailsWrapper.querySelector('.income-amount');
             
             // SAVE CHANGES
-            if (this.textContent === 'Save') {
+            if (this.dataset.mode === 'save') {
                 const newDesc = titleEl.querySelector('input').value;
                 const newAmount = amountEl.querySelector('input').value;
 
@@ -166,7 +172,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.success) {
                         titleEl.textContent = newDesc;
                         amountEl.textContent = '€' + parseFloat(newAmount).toFixed(2);
-                        this.textContent = 'Edit';
+                        this.dataset.mode = 'edit';
+                        this.setAttribute('aria-label', 'Edit income');
+                        this.setAttribute('title', 'Edit income');
+                        this.innerHTML = '<img class="icon-svg" src="/static/icons/edit.svg" alt="" aria-hidden="true"><span class="sr-only">Edit</span>';
                         location.reload();
                     } else {
                         alert('Error updating income');
@@ -181,6 +190,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 titleEl.innerHTML = `<input type="text" value="${currentTitle}" class="edit-income-title">`;
                 amountEl.innerHTML = `<input type="number" step="0.01" value="${currentAmount}" class="edit-income-amount">`;
                 
+                this.dataset.mode = 'save';
+                this.setAttribute('aria-label', 'Save income');
+                this.removeAttribute('title');
                 this.textContent = 'Save';
             }
         });

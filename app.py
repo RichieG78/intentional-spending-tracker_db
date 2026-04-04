@@ -380,7 +380,6 @@ def performance():
 @login_required
 def add_income():
     """Shows the add-income form and saves the entry when it is submitted."""
-    users = User.query.order_by(User.firstname.asc()).all()
     error_message = None
 
     if request.method == 'POST':
@@ -389,12 +388,11 @@ def add_income():
         income_type = (request.form.get('income_type') or 'primary').lower()
         gross_net = (request.form.get('amount_type') or 'net').lower()
         other_description = _clean_text(request.form.get('other_description'))
-        user_id = _to_int(request.form.get('user_id'))
 
         name = 'Primary Income' if income_type == 'primary' else (other_description or 'Other Income')
 
-        if amount is None or user_id is None:
-            error_message = 'Amount and user are required.'
+        if amount is None:
+            error_message = 'Amount is required.'
         else:
             record = Income(
                 name=name,
@@ -403,7 +401,7 @@ def add_income():
                 amount=amount,
                 frequency=frequency,
                 gross_net=gross_net,
-                user_id=user_id,
+                user_id=current_user.id,
             )
 
             db.session.add(record)
@@ -414,7 +412,7 @@ def add_income():
                 db.session.rollback()
                 error_message = 'Could not save the income. Please try again.'
 
-    return render_template('add-income.html', users=users, error_message=error_message)
+    return render_template('add-income.html', error_message=error_message)
 
 # Route to add new expenses (Handles both displaying form and processing submission)
 @app.route('/add-expense', methods=['GET', 'POST'])
