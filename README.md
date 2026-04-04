@@ -1,4 +1,4 @@
-# My Financial Tracker
+# My Intentional Spending Tracker
 
 ## Live Web App
 - Render URL: https://myfinancialtracker.onrender.com/
@@ -28,8 +28,8 @@ Quick start (aligned to `about.html`):
 5. Review Dashboard visuals and totals to compare actual spending vs the 50/30/20 targets.
 6. Use the Performance page for annual trend review and recommendations.
 
-The application design was inspired by the 50/30/20 budgeting video embedded on the About page:
-- https://www.youtube.com/embed/4sT2B2SRypo
+The application design was inspired by a 50/30/20 budgeting video referenced on the About page:
+- Video reference: Nischa, YouTube, 50/30/20 budgeting explainer, https://www.youtube.com/watch?v=4sT2B2SRypo
 
 That video influenced the structure of the app by shaping:
 - the use of the 50/30/20 budgeting model,
@@ -73,11 +73,19 @@ Distinction criteria: frontend integration with modern styling and interaction.
 
 Evidence in this project:
 - Multiple templates with Jinja2 inheritance via templates/base.html.
+- 6 HTML pages with matching routes are implemented:
+  - /login (login.html)
+  - /about (about.html)
+  - /dashboard (dashboard.html)
+  - /performance (annual-performance.html)
+  - /add-income (add-income.html)
+  - /add-expense (add-expense.html)
 - Shared navigation/layout with per-page content blocks.
 - CSS styling separated under static/css/.
 - JavaScript behavior separated under static/js/:
   - dashboard.js for interactive dashboard actions.
   - charts.js for chart and visual calculations.
+- I intentionally did not use a generic scripts.js filename because dashboard.js and charts.js describe each JavaScript responsibility and route behavior more clearly.
 - UI includes dynamic updates, category totals, and visual budget feedback.
 
 ### 4) Clean Code Structure and Best Practice
@@ -203,6 +211,6 @@ This submission targets distinction by demonstrating:
 - a deployed, accessible, functional hosted application.
 
 ## Examiner Note on .env and Secret Key Evidence
-For assessment transparency, I am intentionally keeping the .env file available in this repository and visible in git history so the examiner can verify that environment-variable configuration was implemented, including use of SECRET_KEY in the Flask setup.
+For assessment transparency, the .env file has been added to .gitignore and is no longer stored in the repository history. A copy is included in the zipped folder uploaded as part of the assignment submission so the examiner can verify that environment-variable configuration was implemented, including use of SECRET_KEY in the Flask setup.
 
 
