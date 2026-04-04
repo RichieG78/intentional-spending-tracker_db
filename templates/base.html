@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Financial Tracker{% endblock %}</title>
+    <title>{% block title %}Intentional Spending Tracker{% endblock %}</title>
     {% block styles %}{% endblock %}
     {% block head_extra %}{% endblock %}
 </head>
 <body{% block body_attrs %}{% endblock %}>
     {% if show_sidebar|default(false) %}
     <nav>
-        <h2>My Financial Tracker</h2>
+        <h2>Intentional Spending Tracker</h2>
         <ul>
             <li><a href="{{ url_for('dashboard') }}" class="{% if active_page|default('') == 'dashboard' %}active{% endif %}">Dashboard</a></li>
             <li><a href="{{ url_for('performance') }}" class="{% if active_page|default('') == 'performance' %}active{% endif %}">Performance</a></li>
