@@ -46,6 +46,28 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                <label>Recurrence:</label>
+                <div class="radio-group" role="radiogroup" aria-label="Expense recurrence">
+                    <label class="radio-label" for="freq_weekly">
+                        <input type="radio" id="freq_weekly" name="frequency" value="weekly" {% if selected_frequency == 'weekly' %}checked{% endif %} required>
+                        Weekly
+                    </label>
+                    <label class="radio-label" for="freq_fortnightly">
+                        <input type="radio" id="freq_fortnightly" name="frequency" value="fortnightly" {% if selected_frequency == 'fortnightly' %}checked{% endif %}>
+                        Fortnightly
+                    </label>
+                    <label class="radio-label" for="freq_monthly">
+                        <input type="radio" id="freq_monthly" name="frequency" value="monthly" {% if selected_frequency == 'monthly' %}checked{% endif %}>
+                        Monthly
+                    </label>
+                    <label class="radio-label" for="freq_annually">
+                        <input type="radio" id="freq_annually" name="frequency" value="annually" {% if selected_frequency == 'annually' %}checked{% endif %}>
+                        Annually
+                    </label>
+                </div>
+            </div>
+
             <div class="form-actions">
                 <button type="submit" class="btn-new">Add Expense</button>
             </div>

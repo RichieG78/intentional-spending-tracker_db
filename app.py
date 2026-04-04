@@ -425,6 +425,10 @@ def add_expense():
     if selected_expense_type not in allowed_types:
         selected_expense_type = 'fixed'
 
+    selected_frequency = 'monthly'
+
+    allowed_frequencies = {'weekly', 'fortnightly', 'monthly', 'annually'}
+
     if request.method == 'POST':
         description = _clean_text(request.form.get('description'))
         amount = _normalize_amount(request.form.get('amount'))
@@ -432,6 +436,10 @@ def add_expense():
         if expense_type not in allowed_types:
             expense_type = 'fixed'
         selected_expense_type = expense_type
+        frequency = (request.form.get('frequency') or 'monthly').lower()
+        if frequency not in allowed_frequencies:
+            frequency = 'monthly'
+        selected_frequency = frequency
         user_id = current_user.id
 
         if not description or amount is None:
@@ -441,6 +449,7 @@ def add_expense():
                 name=description,
                 currency='EUR',
                 amount=amount,
+                frequency=frequency,
                 date=datetime.utcnow(),
                 type=expense_type,
                 user_id=user_id,
@@ -458,6 +467,7 @@ def add_expense():
         'add-expense.html',
         error_message=error_message,
         selected_expense_type=selected_expense_type,
+        selected_frequency=selected_frequency,
     )
 
 

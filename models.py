@@ -32,6 +32,7 @@ class Expense(db.Model):
     name = db.Column(db.Text, nullable=False)
     currency = db.Column(db.Text, default='EUR', nullable=False)
     amount = db.Column(db.Numeric(12, 2), nullable=False)
+    frequency = db.Column(db.Text, default='monthly', nullable=False)
     date = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
     type = db.Column(db.Text, default='fixed', nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
