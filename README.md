@@ -2,7 +2,11 @@
 
 ## Live Web App
 - Render URL: https://myfinancialtracker.onrender.com/
-- Repository: https://github.com/RichieG78/MyFinancialTracker.git
+- Repository: https://github.com/RichieG78/intentional-spending-tracker_db.git
+
+**Examiner test login:** Please use the following credentials to access the application.
+- Username/email: `richietester@example.com`
+- Password: `demo1234`
 
 ## Project Summary
 My Financial Tracker is a Flask web application backed by PostgreSQL. It provides authenticated access to a budgeting dashboard where users can:
@@ -12,9 +16,28 @@ My Financial Tracker is a Flask web application backed by PostgreSQL. It provide
 - view aggregated totals and visual indicators,
 - review annual performance trends.
 
-The implementation is aligned to the Module 4 Databases assignment brief and rubric in 4_Databases_Assignment.pdf.
+## How to user the Intentional spender applaction
 
-## Assignment Requirements Mapping (Distinction-Focused)
+**Examiner note: Please visit `/about` first. This page contains the same step-by-step usage guidance shown below and is the primary in-app instruction page.**
+
+Quick start (aligned to `about.html`):
+1. Open the Dashboard.
+2. Add your Income first (use net/take-home amount where possible).
+3. Add Expenses as they occur.
+4. Assign each expense to `Fixed`, `Fun`, or `Future`.
+5. Review Dashboard visuals and totals to compare actual spending vs the 50/30/20 targets.
+6. Use the Performance page for annual trend review and recommendations.
+
+The application design was inspired by the 50/30/20 budgeting video embedded on the About page:
+- https://www.youtube.com/embed/4sT2B2SRypo
+
+That video influenced the structure of the app by shaping:
+- the use of the 50/30/20 budgeting model,
+- the separation of spending into Fixed, Fun, and Future categories,
+- the educational About page that explains the budgeting method before use,
+- and the dashboard layout that helps users compare actual spending against target percentages.
+
+## Assignment Requirements (Distinction-Focused)
 
 ### 1) Database Schema and CRUD Logic
 Distinction criterion: strong application of schema and CRUD concepts.
@@ -38,9 +61,7 @@ Evidence in this project:
   - DELETE for deletion
 
 ### 2) Flask + PostgreSQL Integration
-Distinction criterion: strong ability to apply DB integration in Flask.
-
-Evidence in this project:
+Distinction criteria: Evidence of strong ability to apply database integration in Flask:
 - Flask-SQLAlchemy configured via environment variables in config.py:
   - SQLALCHEMY_DATABASE_URI from DATABASE_URL
 - PostgreSQL used in both local and hosted setup.
@@ -48,7 +69,7 @@ Evidence in this project:
 - Render-hosted PostgreSQL connection is used for deployed runtime.
 
 ### 3) Modern HTML/CSS/JavaScript Integration
-Distinction criterion: strong frontend integration with modern styling and interaction.
+Distinction criteria: frontend integration with modern styling and interaction.
 
 Evidence in this project:
 - Multiple templates with Jinja2 inheritance via templates/base.html.
@@ -60,7 +81,7 @@ Evidence in this project:
 - UI includes dynamic updates, category totals, and visual budget feedback.
 
 ### 4) Clean Code Structure and Best Practice
-Distinction criterion: strong clean structure, organization, and best practice.
+Distinction critera: strong clean structure, organization, and best practice.
 
 Evidence in this project:
 - Separation of concerns:
@@ -77,7 +98,7 @@ Evidence in this project:
 - Sensitive debug exposure removed from templates.
 
 ### 5) Hosted, Accessible, Functional Web App
-Distinction criterion: strong evidence of hosted app functionality and accessibility.
+Distinction criteria: strong evidence of hosted app functionality and accessibility.
 
 Evidence in this project:
 - Application deployed on Render and publicly accessible.
@@ -162,5 +183,4 @@ This submission targets distinction by demonstrating:
 - secure authentication and maintainable code organization,
 - a deployed, accessible, functional hosted application.
 
-## Assignment Reference
-- 4_Databases_Assignment.pdf (project folder)
+

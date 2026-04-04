@@ -7,94 +7,11 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/annual-performance.css') }}">
 {% endblock %}
 
 {% block head_extra %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .performance-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .kpi-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .kpi-title {
-            color: #7f8c8d;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            display: block;
-        }
-        
-        .kpi-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .kpi-value.green { color: #27ae60; }
-        .kpi-value.red { color: #c0392b; }
-
-        .recommendation-card {
-            background: #fff;
-            border-left: 5px solid #3498db;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .recommendation-card.opportunity { border-left-color: #2ecc71; }
-        .recommendation-card.warning { border-left-color: #f1c40f; }
-        .recommendation-card.alert { border-left-color: #e74c3c; }
-
-        .rec-title {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .rec-text {
-            color: #555;
-            font-size: 0.95em;
-        }
-
-        .chart-wrapper {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        table.top-expenses {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        
-        table.top-expenses th, table.top-expenses td {
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        table.top-expenses th {
-            color: #7f8c8d;
-            font-weight: normal;
-        }
-    </style>
 {% endblock %}
 
 {% block content %}
@@ -122,7 +39,7 @@
 
         <div class="performance-grid">
             <!-- Monthly Chart -->
-            <div class="chart-wrapper" style="flex: 2;"> <!-- Takes up roughly 2/3 width if space allows -->
+            <div class="chart-wrapper chart-wrapper-wide"> <!-- Takes up roughly 2/3 width if space allows -->
                 <h3>Monthly Spending Trends</h3>
                 <canvas
                     id="monthlyChart"
@@ -131,7 +48,7 @@
             </div>
 
             <!-- Top Spending Table -->
-            <div class="chart-wrapper" style="flex: 1;">
+            <div class="chart-wrapper chart-wrapper-narrow">
                 <h3>Biggest Single Expenses</h3>
                 <table class="top-expenses">
                     <thead>
@@ -161,7 +78,7 @@
         <!-- Recommendations Section -->
         <div class="card">
             <h2>Smart Recommendations & Savings</h2>
-            <p style="margin-bottom: 20px; color: #666;">Based on your spending patterns, we've identified the following opportunities to optimise your budget.</p>
+            <p class="recommendations-intro">Based on your spending patterns, we've identified the following opportunities to optimise your budget.</p>
             
             {% if recommendations %}
                 {% for rec in recommendations %}
