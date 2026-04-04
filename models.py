@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 
 # Shared database helper that lets every model talk to Postgres.
 db = SQLAlchemy()
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
     """Keeps each person's profile so we know who owns income and expenses."""

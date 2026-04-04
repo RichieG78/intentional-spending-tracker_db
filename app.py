@@ -1,8 +1,9 @@
 import os
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
+from urllib.parse import urljoin, urlparse
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
@@ -12,6 +13,17 @@ from models import (
     Expense,
     Income,
 )
+from utils import (
+    _extract_payload,
+    _normalize_amount,
+    _clean_text,
+    _to_int,
+    _parse_datetime,
+    _serialize_user,
+    _serialize_expense,
+    _serialize_income,
+    calculate_monthly_income,
+)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -19,136 +31,96 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 db.init_app(app)
 
-# Ensure all tables exist before handling any requests
-with app.app_context():
-    db.create_all()
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.login_message = 'Please sign in to continue.'
+login_manager.init_app(app)
 
 
-def _extract_payload():
-    """Grab data from either JSON or form so routes can read one payload style."""
-    if request.is_json:
-        return request.get_json(silent=True)
-    if request.form:
-        return request.form.to_dict()
-    return None
-
-
-def _to_decimal(value):
-    """Turn any numeric input into a Decimal or return None when it is messy."""
+@login_manager.user_loader
+def load_user(user_id):
+    """Reloads a person from the session-stored user id."""
+    if not user_id:
+        return None
     try:
-        return Decimal(str(value))
-    except (InvalidOperation, TypeError, ValueError):
-        return None
-
-
-def _normalize_amount(value):
-    """Round money to cents so the database never stores odd precision."""
-    decimal_value = _to_decimal(value)
-    if decimal_value is None:
-        return None
-    return decimal_value.quantize(CURRENCY_QUANT)
-
-
-def _clean_text(value):
-    """Trim whitespace and ensure we always work with strings."""
-    if value is None:
-        return None
-    cleaned = str(value).strip()
-    return cleaned or None
-
-
-def _to_int(value):
-    """Safely convert ids from strings to numbers."""
-    try:
-        return int(value)
+        return db.session.get(User, int(user_id))
     except (TypeError, ValueError):
         return None
 
 
-def _parse_datetime(raw_value):
-    """Convert ISO strings to datetime while falling back to now."""
-    if not raw_value:
-        return datetime.utcnow()
-    try:
-        return datetime.fromisoformat(raw_value)
-    except ValueError:
-        return datetime.utcnow()
+def _is_safe_next_url(target):
+    """Only allow redirects that stay on this site."""
+    if not target:
+        return False
+    host_url = urlparse(request.host_url)
+    redirect_url = urlparse(urljoin(request.host_url, target))
+    return redirect_url.scheme in ('http', 'https') and host_url.netloc == redirect_url.netloc
 
-
-def _serialize_user(user):
-    """Return a plain dict copy of a user row."""
-    return {
-        'id': user.id,
-        'firstname': user.firstname,
-        'lastname': user.lastname,
-        'email': user.email,
-        'created_at': user.created_at.isoformat() if user.created_at else None,
-    }
-
-
-def _serialize_expense(record):
-    """Return a plain dict copy of an expense row."""
-    return {
-        'id': record.id,
-        'name': record.name,
-        'type': record.type,
-        'amount': float(record.amount),
-        'currency': record.currency,
-        'date': record.date.isoformat() if record.date else None,
-        'user_id': record.user_id,
-    }
-
-
-def _serialize_income(record):
-    """Return a plain dict copy of an income row."""
-    return {
-        'id': record.id,
-        'name': record.name,
-        'type': record.type,
-        'amount': float(record.amount),
-        'currency': record.currency,
-        'frequency': record.frequency,
-        'gross_net': record.gross_net,
-        'date': record.date.isoformat() if record.date else None,
-        'user_id': record.user_id,
-    }
-
-# Helper function to normalize all income to a monthly value
-def calculate_monthly_income(income):
-    """Translate different pay schedules into a monthly figure."""
-    amount = income.amount
-    freq = income.frequency.lower()
-    if freq == 'hourly':
-        return amount * 40 * 52 / 12 # Approximation: 40hr work week
-    elif freq == 'weekly':
-        return amount * 52 / 12
-    elif freq == 'monthly':
-        return amount
-    elif freq == 'annually':
-        return amount / 12
-    return 0
+# Ensure all tables exist before handling any requests
+with app.app_context():
+    db.create_all()
 
 # --- Routes ---
+
+# Login / Logout Routes
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Shows the sign-in form and checks the email/password against the database."""
+    # If already logged in, skip straight to the dashboard
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+
+    error_message = None
+    next_url = request.args.get('next')
+
+    if request.method == 'POST':
+        email = (request.form.get('email') or '').strip().lower()
+        password = (request.form.get('password') or '').strip()
+
+        # Look up the person by email
+        user = User.query.filter_by(email=email).first()
+
+        # Check the password matches (plain-text comparison – demo only)
+        if user and user.password == password:
+            login_user(user)
+
+            next_url = (request.form.get('next') or next_url or '').strip()
+            if next_url and _is_safe_next_url(next_url):
+                return redirect(next_url)
+            return redirect(url_for('dashboard'))
+
+        error_message = 'Incorrect email or password. Please try again.'
+
+    return render_template('login.html', error_message=error_message, next_url=next_url)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    """Clears the session and sends the person back to the login page."""
+    logout_user()
+    return redirect(url_for('login'))
+
 
 # Home Route: Displays the landing page
 @app.route('/')
 def index():
-    """Show the welcome page plus the list of people in the system."""
+    """Shows the welcome page and everyone currently signed up."""
     user_data = User.query.all()
-    return render_template('home.html', user_data=user_data)
+    return render_template('about.html', user_data=user_data)
 
 
-# --- User CRUD API (JSON endpoints) ---
+# --- User CRUD API (JSON endpoints): small helpers that add, list, edit, or remove people ---
 @app.route('/users', methods=['GET'])
 def users_list():
-    """Return every user row for API clients."""
+    """Reads every person from the database, newest first, and hands back simple data about them."""
     users = User.query.order_by(User.created_at.desc()).all()
     return jsonify([_serialize_user(user) for user in users])
 
 
 @app.route('/user_insert', methods=['POST'])
 def user_insert():
-    """Create a user record so the homepage has real people to display."""
+    """Creates a brand-new person so the rest of the app has someone to link to."""
     payload = _extract_payload()
     if not payload:
         return jsonify({'error': 'No payload supplied'}), 400
@@ -172,6 +144,7 @@ def user_insert():
     )
 
     db.session.add(user)
+    # Try to lock the new person into the database, and give a friendly error if it fails
     try:
         db.session.commit()
     except IntegrityError:
@@ -188,36 +161,44 @@ def user_insert():
 
 @app.route('/users/<int:user_id>', methods=['GET', 'PATCH', 'PUT', 'DELETE'])
 def user_detail(user_id):
-    """Read, update, or delete a specific user via JSON."""
+    """Lets us peek at, tweak, or remove a single person."""
+    # Grab the requested person (or send a 404 if they are missing)
     user = User.query.get_or_404(user_id)
 
+    # READ: if someone just wants to see the person, return the basics right away
     if request.method == 'GET':
         return jsonify(_serialize_user(user))
 
+    # UPDATE: PATCH/PUT calls want to change specific fields sent in the payload
     if request.method in ('PATCH', 'PUT'):
         payload = _extract_payload() or {}
         pending_email = payload.get('email')
 
+        # Adjust the first name when a new value was supplied
         if 'firstname' in payload:
             value = _clean_text(payload.get('firstname'))
             if value:
                 user.firstname = value
 
+        # Adjust the last name when a new value was supplied
         if 'lastname' in payload:
             value = _clean_text(payload.get('lastname'))
             if value:
                 user.lastname = value
 
+        # Email gets lowercased so duplicates are easier to spot
         if pending_email is not None:
             value = _clean_text(pending_email)
             if value:
                 user.email = value.lower()
 
+        # Update passwords only if a non-empty value came through
         if 'password' in payload:
             value = _clean_text(payload.get('password'))
             if value:
                 user.password = value
 
+        # Try to save the edits, surfacing friendly errors on conflicts
         try:
             db.session.commit()
         except IntegrityError:
@@ -230,6 +211,7 @@ def user_detail(user_id):
         return jsonify(_serialize_user(user))
 
     # DELETE
+    # REMOVE: wipe the person entirely when DELETE is called
     db.session.delete(user)
     try:
         db.session.commit()
@@ -242,23 +224,29 @@ def user_detail(user_id):
 
 @app.route('/user_delete/<int:user_id>', methods=['GET', 'POST'])
 def user_delete(user_id):
-    """Remove a user along with any linked income and expense rows."""
+    """Removes someone and all of their money records in one go."""
+    # Look up the person using the id from the URL; send a 404 if it is bogus
     user = User.query.get_or_404(user_id)
+    # Remove the person plus their related expense/income rows in one transaction
     db.session.delete(user)
     try:
+        # Try to save the deletion and roll back if anything fails
         db.session.commit()
     except Exception as exc:
         db.session.rollback()
         return jsonify({'error': 'Failed to delete user', 'details': str(exc)}), 500
 
+    # If the caller wanted JSON (AJAX), send a JSON success response
     if request.is_json or request.accept_mimetypes.best == 'application/json':
         return jsonify({'success': True})
+    # Otherwise bounce a browser user back to the home page so the list refreshes
     return redirect(url_for('index'))
 
 # Dashboard Route: Displays the dashboard
 @app.route('/dashboard')
+@login_required
 def dashboard():
-    """Visualize current incomes and expenses straight from Postgres."""
+    """Shows a friendly overview of how money is coming in and going out."""
     expense_rows = Expense.query.order_by(Expense.date.desc()).all()
     income_rows = Income.query.order_by(Income.date.desc()).all()
 
@@ -281,8 +269,9 @@ def dashboard():
 
 # Performance Route: Financial Performance Dashboard
 @app.route('/performance')
+@login_required
 def performance():
-    """Summarize yearly income, spending, and quick coaching tips."""
+    """Tells a simple story about how the year looks plus a few tips."""
     expense_rows = Expense.query.order_by(Expense.date.desc()).all()
     income_rows = Income.query.order_by(Income.date.desc()).all()
 
@@ -361,8 +350,9 @@ def performance():
 
 # Route to add new income (Handles both displaying form and processing submission)
 @app.route('/add-income', methods=['GET', 'POST'])
+@login_required
 def add_income():
-    """Handle the web form for adding real income rows."""
+    """Shows the add-income form and saves the entry when it is submitted."""
     users = User.query.order_by(User.firstname.asc()).all()
     error_message = None
 
@@ -401,8 +391,9 @@ def add_income():
 
 # Route to add new expenses (Handles both displaying form and processing submission)
 @app.route('/add-expense', methods=['GET', 'POST'])
+@login_required
 def add_expense():
-    """Handle the web form for adding real expense rows."""
+    """Shows the add-expense form and stores the purchase once submitted."""
     users = User.query.order_by(User.firstname.asc()).all()
     error_message = None
 
@@ -438,7 +429,7 @@ def add_expense():
 # --- Expense CRUD API (database-backed) ---
 @app.route('/expenses_insert', methods=['POST'])
 def expenses_insert():
-    """Create a real expense row in Postgres from JSON or form data."""
+    """Adds a new expense to the database using whatever data the caller sends."""
     payload = _extract_payload()
     if not payload:
         return jsonify({'error': 'No payload supplied'}), 400
@@ -472,14 +463,14 @@ def expenses_insert():
 
 @app.route('/expenses', methods=['GET'])
 def expenses_list():
-    """Return every saved expense."""
+    """Lists every expense we have on file."""
     rows = Expense.query.order_by(Expense.date.desc()).all()
     return jsonify([_serialize_expense(row) for row in rows])
 
 
 @app.route('/expenses/<int:expense_id>', methods=['GET', 'PATCH', 'PUT', 'DELETE'])
 def expenses_detail(expense_id):
-    """Read, change, or remove a specific expense."""
+    """Looks at one expense and lets callers update or delete it."""
     record = Expense.query.get_or_404(expense_id)
 
     if request.method == 'GET':
@@ -536,7 +527,7 @@ def expenses_detail(expense_id):
 # API Route: Delete Expense (Called via AJAX)
 @app.route('/delete-expense/<int:expense_id>', methods=['DELETE'])
 def delete_expense(expense_id):
-    """Delete an expense row from Postgres."""
+    """Removes an expense right away when someone clicks delete on the dashboard."""
     record = Expense.query.get_or_404(expense_id)
     db.session.delete(record)
     try:
@@ -549,7 +540,7 @@ def delete_expense(expense_id):
 # API Route: Update Expense (Called via AJAX)
 @app.route('/update-expense/<int:expense_id>', methods=['POST'])
 def update_expense(expense_id):
-    """Edit an expense row without leaving the dashboard."""
+    """Lets the dashboard inline editor rename a purchase or change its amount."""
     record = Expense.query.get_or_404(expense_id)
     data = request.get_json(silent=True) or {}
 
@@ -580,7 +571,7 @@ def update_expense(expense_id):
 # API Route: Delete Income (Called via AJAX)
 @app.route('/delete-income/<int:income_id>', methods=['DELETE'])
 def delete_income(income_id):
-    """Remove an income entry from Postgres."""
+    """Removes an income entry when someone deletes it from the UI."""
     record = Income.query.get_or_404(income_id)
     db.session.delete(record)
     try:
@@ -593,7 +584,7 @@ def delete_income(income_id):
 # API Route: Update Income (Called via AJAX)
 @app.route('/update-income/<int:income_id>', methods=['POST'])
 def update_income(income_id):
-    """Edit an income entry via AJAX."""
+    """Lets the dashboard inline editor rename or resize an income entry."""
     record = Income.query.get_or_404(income_id)
     data = request.get_json(silent=True) or {}
 
@@ -625,7 +616,7 @@ def update_income(income_id):
 # --- Income CRUD API (database-backed) ---
 @app.route('/income_insert', methods=['POST'])
 def income_insert():
-    """Create a real income row in Postgres from JSON or form data."""
+    """Adds a new income row in the database from either JSON or form data."""
     payload = _extract_payload()
     if not payload:
         return jsonify({'error': 'No payload supplied'}), 400
@@ -663,14 +654,14 @@ def income_insert():
 
 @app.route('/incomes', methods=['GET'])
 def incomes_list():
-    """Return every income row."""
+    """Lists every income entry on record."""
     rows = Income.query.order_by(Income.date.desc()).all()
     return jsonify([_serialize_income(row) for row in rows])
 
 
 @app.route('/incomes/<int:income_id>', methods=['GET', 'PATCH', 'PUT', 'DELETE'])
 def incomes_detail(income_id):
-    """Read, change, or remove a specific income row."""
+    """Looks at one income entry and lets callers update or delete it."""
     record = Income.query.get_or_404(income_id)
 
     if request.method == 'GET':

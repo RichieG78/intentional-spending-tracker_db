@@ -11,11 +11,12 @@
     <nav><aside>
         <h2>My Financial Tracker</h2>
         <ul>
-            <li><a href="{{ url_for('index') }}">Home</a></li>
             <li><a href="{{ url_for('dashboard') }}" class="active">Dashboard</a></li>
             <li><a href="{{ url_for('performance') }}">Performance</a></li>
             <li><a href="{{ url_for('add_income') }}">Add Income</a></li>
             <li><a href="{{ url_for('add_expense') }}">Add Expense</a></li>
+            <li><a href="{{ url_for('index') }}">About</a></li>
+            <li style="margin-top: auto;"><a href="{{ url_for('logout') }}">Logout</a></li>
     </aside></nav>
 
 <!-- Income Container -->

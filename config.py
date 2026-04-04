@@ -9,4 +9,4 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 # Disable the noisy FS event system in dev
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+SQLALCHEMY_TRACK_MODIFICATIONS = False 
